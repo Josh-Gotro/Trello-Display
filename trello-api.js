@@ -114,6 +114,52 @@ async function fetchCardComments(cardId) {
   return makeRequest(url);
 }
 
+// Fetch all boards accessible to the user
+async function fetchUserBoards() {
+  const url = `https://api.trello.com/1/members/me/boards?key=${CONFIG.apiKey}&token=${CONFIG.token}`;
+  return makeRequest(url);
+}
+
+// Fetch specific board information by ID
+async function fetchBoardById(boardId) {
+  const url = `https://api.trello.com/1/boards/${boardId}?key=${CONFIG.apiKey}&token=${CONFIG.token}`;
+  return makeRequest(url);
+}
+
+// Fetch all lists for a specific board
+async function fetchListsByBoardId(boardId) {
+  const url = `https://api.trello.com/1/boards/${boardId}/lists?key=${CONFIG.apiKey}&token=${CONFIG.token}`;
+  return makeRequest(url);
+}
+
+// Fetch all cards from specific lists
+async function fetchCardsFromLists(listIds, includeAttachments = true) {
+  const allCards = [];
+  
+  for (const listId of listIds) {
+    const options = includeAttachments ? { attachments: 'true' } : {};
+    const cards = await fetchListCards(listId, options);
+    // Add list information to each card
+    for (const card of cards) {
+      card.listId = listId;
+    }
+    allCards.push(...cards);
+  }
+  
+  return allCards;
+}
+
+// Fetch cards from a specific board with list filtering
+async function fetchBoardCardsFiltered(boardId, selectedListIds = null, includeAttachments = true) {
+  if (selectedListIds && selectedListIds.length > 0) {
+    return fetchCardsFromLists(selectedListIds, includeAttachments);
+  } else {
+    // Fetch all cards from the board
+    const url = `https://api.trello.com/1/boards/${boardId}/cards?${includeAttachments ? 'attachments=true&' : ''}key=${CONFIG.apiKey}&token=${CONFIG.token}`;
+    return makeRequest(url);
+  }
+}
+
 module.exports = {
   CONFIG,
   listIds,
@@ -129,5 +175,10 @@ module.exports = {
   fetchBoardLists,
   fetchCard,
   fetchAllBoardCards,
-  fetchCardComments
+  fetchCardComments,
+  fetchUserBoards,
+  fetchBoardById,
+  fetchListsByBoardId,
+  fetchCardsFromLists,
+  fetchBoardCardsFiltered
 };

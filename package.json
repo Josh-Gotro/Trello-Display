@@ -1,8 +1,10 @@
 {
   "name": "ctrlaltdel",
   "version": "1.0.0",
-  "main": "crtl-alt-delegate.js",
+  "main": "interactive-generator.js",
   "scripts": {
+    "start": "node interactive-generator.js",
+    "legacy": "node crtl-alt-delegate.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
