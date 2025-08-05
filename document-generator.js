@@ -34,11 +34,19 @@ async function processCardAttachments(attachments, cardName) {
   return processedAttachments;
 }
 
-// Convert markdown-like text to HTML - with embedded images
+// Convert markdown-like text to HTML - with embedded images and special blocks
 function formatDescription(desc, attachments = []) {
   if (!desc) return '';
 
   let formattedDesc = desc;
+
+  // Handle TODO and Notes blocks first (before other formatting)
+  formattedDesc = formattedDesc.replace(/(TODO|TODOS?|Notes?|NOTE):\s*([^\n]*(?:\n(?!TODO|TODOS?|Notes?|NOTE)[^\n]*)*)/gi, (match, keyword, content) => {
+    return `<div class="special-block ${keyword.toLowerCase()}-block">
+      <div class="block-header">${keyword.toUpperCase()}</div>
+      <div class="block-content">${content.trim()}</div>
+    </div>`;
+  });
 
   // Replace image references with actual img tags
   formattedDesc = formattedDesc.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, altText, imageUrl) => {
@@ -50,19 +58,19 @@ function formatDescription(desc, attachments = []) {
 
   // Continue with other markdown formatting
   formattedDesc = formattedDesc
-    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+    .replace(/^### (.*$)/gm, '<h4>$1</h4>')  // Changed to h4 for card sub-headings
+    .replace(/^## (.*$)/gm, '<h3>$1</h3>')   // Changed to h3 for card sub-headings
+    .replace(/^# (.*$)/gm, '<h3>$1</h3>')    // Changed to h3 for card sub-headings
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/```([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>')
+    .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>')
     .replace(/^(?!<[h|p|pre|div])/gm, '<p>')
     .replace(/(?<!>)$/gm, '</p>')
     .replace(/<p><\/p>/g, '')
-    .replace(/<p>(<h[1-6]>)/g, '$1')
-    .replace(/(<\/h[1-6]>)<\/p>/g, '$1')
+    .replace(/<p>(<h[3-4]>)/g, '$1')
+    .replace(/(<\/h[3-4]>)<\/p>/g, '$1')
     .replace(/<p>(<div)/g, '$1')
     .replace(/(<\/div>)<\/p>/g, '$1');
 
@@ -101,7 +109,7 @@ function generateCommentsHTML(comments, includeComments) {
 // Generate cover letter page HTML
 function generateCoverLetterHTML(config) {
   if (!config.coverLetter.enabled) return '';
-  
+
   return `
     <div class="cover-letter-page" id="coverLetterPage">
       <div class="cover-letter-content">
@@ -120,7 +128,7 @@ function generateCoverLetterHTML(config) {
 // Generate logo HTML
 function generateLogoHTML(config) {
   if (!config.logo.enabled) return '';
-  
+
   return `
     <div class="logo-container">
       <img src="${config.logo.url}" alt="Logo" class="logo" style="width: ${config.logo.width}px;">
@@ -142,56 +150,74 @@ function getLabelColor(color) {
 function generateConfigurableHTML(cards, config) {
   const timestamp = new Date().toLocaleString();
 
-  // Helper function to determine if page break is needed
-  function shouldBreakAfterCard(index, config) {
-    if (config.oneCardPerPrintPage) return true;
-    if (!config.enablePrintPagination) return false;
-    return (index + 1) % config.cardsPerPrintPage === 0 && index < cards.length - 1;
-  }
-
-  // Process cards
-  const processedCards = cards.map((card, index) => {
-    const description = formatDescription(card.desc, card.attachments || []);
-    const labels = card.labels
-      .map(label => `<span class="label" style="background-color: ${getLabelColor(label.color)}">${label.name}</span>`)
-      .join(' ');
-
-    const commentsHTML = generateCommentsHTML(card.comments || [], config.includeComments);
-
-    return {
-      ...card,
-      description,
-      labels,
-      commentsHTML,
-      hasComments: (card.comments || []).length > 0,
-      commentCount: (card.comments || []).length,
-      cardNumber: config.showCardNumbers ? index + 1 : null,
-      needsPageBreakAfter: shouldBreakAfterCard(index, config)
-    };
+  // Group cards by their source list
+  const cardsByList = {};
+  cards.forEach(card => {
+    const listId = card.listId || 'unknown';
+    if (!cardsByList[listId]) {
+      cardsByList[listId] = [];
+    }
+    cardsByList[listId].push(card);
   });
 
-  // Generate cards HTML for print layout
-  cardsHTML = processedCards.map((card, index) => {
-    const pageBreakClass = card.needsPageBreakAfter ? ' page-break-after' : '';
-    
-    return `
-      <div class="rule-card${pageBreakClass}" data-search="${card.name.toLowerCase()} ${card.desc?.toLowerCase() || ''}">
-        <div class="rule-header">
-          <h2 class="rule-title">
-            ${config.showCardNumbers ? `<span class="card-number">${card.cardNumber}. </span>` : ''}
-            <a href="${card.url}" target="_blank" title="View in Trello">${card.name}</a>
+  // Process cards and organize by sections
+  let sectionNumber = 1;
+  let sectionsHTML = '';
+
+  config.selectedLists.forEach(listInfo => {
+    const listCards = cardsByList[listInfo.id] || [];
+
+    if (listCards.length === 0) return; // Skip empty lists
+
+    // Generate section header
+    const sectionId = `section-${sectionNumber}`;
+    sectionsHTML += `
+      <div class="document-section" id="${sectionId}">
+        <h1 class="section-header">
+          <span class="section-number">${sectionNumber}.</span>
+          <span class="section-title">${listInfo.name}</span>
+        </h1>
+    `;
+
+    // Process cards in this section
+    listCards.forEach((card, cardIndex) => {
+      const cardNumber = `${sectionNumber}.${cardIndex + 1}`;
+      const description = formatDescription(card.desc, card.attachments || []);
+      const commentsHTML = generateCommentsHTML(card.comments || [], config.includeComments);
+
+      // Determine if page break is needed after this card
+      const needsPageBreak = shouldBreakAfterCard(cardIndex, config, listCards.length);
+      const pageBreakClass = needsPageBreak ? ' page-break-after' : '';
+
+      sectionsHTML += `
+        <div class="card-item${pageBreakClass}" data-search="${card.name.toLowerCase()} ${card.desc?.toLowerCase() || ''}">
+          <h2 class="card-header">
+            <span class="card-number">${cardNumber}</span>
+            <span class="card-title">${card.name}</span>
+            <a href="${card.url}" target="_blank" title="View in Trello" class="trello-link">🔗</a>
           </h2>
-          <div class="rule-meta">
-            ${card.labels}
-            <span class="rule-id">#${card.idShort}</span>
+          <div class="card-meta">
+            ${card.labels.map(label => `<span class="label" style="background-color: ${getLabelColor(label.color)}">${label.name}</span>`).join(' ')}
+            <span class="card-id">#${card.idShort}</span>
           </div>
+          <div class="card-content">
+            ${description}
+          </div>
+          ${card.hasComments && config.includeComments ? commentsHTML : ''}
         </div>
-        <div class="rule-content">
-          ${card.description}
-        </div>
-        ${card.hasComments && config.includeComments ? card.commentsHTML : ''}
-      </div>`;
-  }).join('');
+      `;
+    });
+
+    sectionsHTML += '</div>'; // Close section
+    sectionNumber++;
+  });
+
+  // Helper function to determine if page break is needed
+  function shouldBreakAfterCard(cardIndex, config, totalCardsInSection) {
+    if (config.oneCardPerPrintPage) return cardIndex < totalCardsInSection - 1; // Break after each card except the last
+    if (!config.enablePrintPagination) return false;
+    return (cardIndex + 1) % config.cardsPerPrintPage === 0 && cardIndex < totalCardsInSection - 1;
+  }
 
   return `
 <!DOCTYPE html>
@@ -268,131 +294,337 @@ function generateConfigurableHTML(cards, config) {
                 background: white;
                 margin: 0;
                 padding: 0;
+                font-size: 12pt;
+                line-height: 1.4;
             }
-            
+
             .header {
                 background: white !important;
                 color: black !important;
                 box-shadow: none;
-                border-bottom: 2px solid #333;
+                border-bottom: 2pt solid #333;
+                margin-bottom: 1rem;
             }
-            
+
             .search-section {
                 display: none;
             }
-            
-            .rule-card {
-                box-shadow: none;
-                border: 1px solid #ddd;
-                break-inside: avoid;
-                margin-bottom: 1rem;
+
+            .document-section {
+                page-break-inside: avoid;
+                margin-bottom: 2rem;
             }
-            
+
+            .section-header {
+                font-size: 18pt;
+                color: black !important;
+                border-bottom: 2pt solid #333 !important;
+                margin: 1.5rem 0 1rem 0;
+                page-break-after: avoid;
+            }
+
+            .section-number {
+                color: black !important;
+            }
+
+            .card-item {
+                break-inside: avoid;
+                margin-bottom: 1.5rem;
+                border-left: 1pt solid #333 !important;
+            }
+
+            .card-header {
+                font-size: 14pt;
+                color: black !important;
+                page-break-after: avoid;
+            }
+
+            .card-number {
+                color: black !important;
+            }
+
+            .trello-link {
+                display: none;
+            }
+
+            .card-meta {
+                font-size: 9pt;
+            }
+
+            .label {
+                background: #f0f0f0 !important;
+                color: black !important;
+                border: 1pt solid #ccc;
+            }
+
+            .card-id {
+                background: #f5f5f5 !important;
+                color: black !important;
+            }
+
+            .card-content {
+                font-size: 11pt;
+                line-height: 1.5;
+            }
+
+            .card-content h3, .card-content h4 {
+                color: black !important;
+                page-break-after: avoid;
+            }
+
+            .special-block {
+                border: 1pt solid #333 !important;
+                background: #f8f8f8 !important;
+                break-inside: avoid;
+            }
+
+            .todo-block {
+                border-left: 3pt solid #000 !important;
+            }
+
+            .note-block, .notes-block {
+                border-left: 3pt solid #666 !important;
+            }
+
+            .block-header {
+                background: #e8e8e8 !important;
+                color: black !important;
+            }
+
+            .block-content {
+                color: black !important;
+            }
+
+            .code-block {
+                border: 1pt solid #ccc !important;
+                background: #f8f8f8 !important;
+                break-inside: avoid;
+            }
+
+            .inline-code {
+                background: #f0f0f0 !important;
+                border: 1pt solid #ccc !important;
+                color: black !important;
+            }
+
             .page-break-after {
                 page-break-after: always;
             }
-            
-            .rule-title a {
-                color: black !important;
-                text-decoration: none;
-            }
-            
+
             .footer {
-                border-top: 1px solid #333;
+                border-top: 1pt solid #333;
                 margin-top: 2rem;
+                font-size: 10pt;
             }
-            
+
             .card-image {
                 max-width: 100%;
                 page-break-inside: avoid;
             }
-            
+
             .comments-section {
                 page-break-inside: avoid;
+                font-size: 10pt;
             }
         }
-        
+
         .card-number {
             font-weight: 600;
             color: #667eea;
         }
 
-        .rule-card {
-            background: white;
-            margin-bottom: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
+        /* Hierarchical Document Layout */
+        .hierarchical-document {
+            max-width: none;
+            margin: 0;
         }
 
-        .rule-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        .document-section {
+            margin-bottom: 3rem;
+            page-break-inside: avoid;
         }
 
-        .rule-header {
-            padding: 1.5rem 1.5rem 1rem;
-            border-bottom: 1px solid #e1e8ed;
+        .section-header {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 2rem 0 1.5rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
         }
 
-        .rule-title { font-size: 1.4rem; margin-bottom: 0.5rem; }
-        .rule-title a { color: #333; text-decoration: none; }
-        .rule-title a:hover { color: #667eea; }
+        .section-number {
+            color: #667eea;
+            font-weight: 800;
+        }
 
-        .rule-meta {
+        .section-title {
+            flex: 1;
+        }
+
+        .card-item {
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+            border-left: 2px solid #e2e8f0;
+        }
+
+        .card-header {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-number {
+            color: #667eea;
+            font-weight: 700;
+            min-width: 4rem;
+        }
+
+        .card-title {
+            flex: 1;
+        }
+
+        .trello-link {
+            text-decoration: none;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .trello-link:hover {
+            opacity: 1;
+        }
+
+        .card-meta {
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             flex-wrap: wrap;
+            padding-left: 4.75rem;
         }
 
         .label {
             padding: 0.2rem 0.6rem;
             border-radius: 12px;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: white;
             font-weight: 500;
         }
 
-        .rule-id {
+        .card-id {
             padding: 0.2rem 0.6rem;
             border-radius: 12px;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 500;
             background: #f1f3f4;
             color: #666;
         }
 
-        .rule-content { padding: 1.5rem; }
-        .rule-content h1, .rule-content h2, .rule-content h3 {
-            margin: 1rem 0 0.5rem;
-            color: #333;
+        .card-content {
+            padding-left: 4.75rem;
+            line-height: 1.7;
         }
-        .rule-content h1 { font-size: 1.3rem; }
-        .rule-content h2 { font-size: 1.2rem; }
-        .rule-content h3 { font-size: 1.1rem; }
-        .rule-content p { margin-bottom: 1rem; }
 
-        .rule-content code {
-            background: #f8f9fa;
+        .card-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 1.5rem 0 0.75rem 0;
+        }
+
+        .card-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin: 1.25rem 0 0.5rem 0;
+        }
+
+        .card-content p {
+            margin-bottom: 1rem;
+            color: #4a5568;
+        }
+
+        .inline-code {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
             padding: 0.2rem 0.4rem;
             border-radius: 3px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.9rem;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #2d3748;
         }
 
-        .rule-content pre {
-            background: #f8f9fa;
+        .code-block {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #667eea;
             padding: 1rem;
             border-radius: 6px;
             overflow-x: auto;
-            margin: 1rem 0;
+            margin: 1.5rem 0;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
         }
 
-        .rule-content pre code {
+        .code-block code {
             background: none;
+            border: none;
             padding: 0;
+            color: #2d3748;
+        }
+
+        /* Special blocks for TODO and Notes */
+        .special-block {
+            margin: 1.5rem 0;
+            border-radius: 6px;
+            border-left: 4px solid;
+            background: #f8f9fa;
+            overflow: hidden;
+        }
+
+        .todo-block {
+            border-left-color: #f56565;
+            background: #fed7d7;
+        }
+
+        .note-block, .notes-block {
+            border-left-color: #4299e1;
+            background: #bee3f8;
+        }
+
+        .block-header {
+            background: rgba(0,0,0,0.05);
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .todo-block .block-header {
+            color: #c53030;
+        }
+
+        .note-block .block-header, .notes-block .block-header {
+            color: #2b6cb0;
+        }
+
+        .block-content {
+            padding: 1rem;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #2d3748;
+            white-space: pre-wrap;
         }
 
         .embedded-image {
@@ -527,18 +759,18 @@ function generateConfigurableHTML(cards, config) {
 
     <div class="container">
         ${config.coverLetter.enabled && config.coverLetter.showOnSeparatePage ? generateCoverLetterHTML(config) : ''}
-        
+
         ${!config.separatePages ? `
         <div class="search-section">
             <input type="text" class="search-box" placeholder="Search..." id="searchBox">
             <div class="stats">
-                <span id="resultCount">${processedCards.length} cards found</span>
+                <span id="resultCount">${cards.length} cards found</span>
                 <span>Generated: ${timestamp}</span>
             </div>
         </div>
         ` : ''}
 
-        <div id="cardsContainer">${cardsHTML}</div>
+        <div id="documentContainer" class="hierarchical-document">${sectionsHTML}</div>
 
         <div class="no-results" id="noResults">
             <h3>No cards found</h3>
@@ -553,8 +785,8 @@ function generateConfigurableHTML(cards, config) {
     </div>
 
     <script>
-        ${generateSearchScript()}
-        
+${generateHierarchicalSearchScript()}
+
         // Print optimization
         window.addEventListener('beforeprint', function() {
             // Ensure all cards are visible for printing
@@ -580,7 +812,7 @@ function generateSeparatePagesScript(totalCards) {
             const card = document.getElementById('cardPage' + i);
             if (card) card.style.display = 'none';
         }
-        
+
         // Show selected card
         const selectedCard = document.getElementById('cardPage' + cardNumber);
         if (selectedCard) {
@@ -600,29 +832,46 @@ function generateSeparatePagesScript(totalCards) {
   `;
 }
 
-// Generate JavaScript for search functionality
-function generateSearchScript() {
+// Generate JavaScript for hierarchical search functionality
+function generateHierarchicalSearchScript() {
   return `
     const searchBox = document.getElementById('searchBox');
-    const cardsContainer = document.getElementById('cardsContainer');
+    const documentContainer = document.getElementById('documentContainer');
     const resultCount = document.getElementById('resultCount');
     const noResults = document.getElementById('noResults');
-    const allCards = document.querySelectorAll('.rule-card');
+    const allCards = document.querySelectorAll('.card-item');
+    const allSections = document.querySelectorAll('.document-section');
 
     if (searchBox) {
         searchBox.addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
             let visibleCount = 0;
 
-            allCards.forEach(card => {
-                const searchData = card.getAttribute('data-search') || '';
-                if (searchData.includes(searchTerm)) {
-                    card.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+            if (searchTerm === '') {
+                // Show all cards and sections
+                allCards.forEach(card => card.style.display = 'block');
+                allSections.forEach(section => section.style.display = 'block');
+                visibleCount = allCards.length;
+            } else {
+                // Hide all sections first
+                allSections.forEach(section => section.style.display = 'none');
+
+                // Check each card
+                allCards.forEach(card => {
+                    const searchData = card.getAttribute('data-search') || '';
+                    if (searchData.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        // Show the parent section
+                        const parentSection = card.closest('.document-section');
+                        if (parentSection) {
+                            parentSection.style.display = 'block';
+                        }
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
 
             if (resultCount) {
                 resultCount.textContent = visibleCount + ' card' + (visibleCount !== 1 ? 's' : '') + ' found';
@@ -630,10 +879,10 @@ function generateSearchScript() {
 
             if (visibleCount === 0) {
                 if (noResults) noResults.style.display = 'block';
-                if (cardsContainer) cardsContainer.style.display = 'none';
+                if (documentContainer) documentContainer.style.display = 'none';
             } else {
                 if (noResults) noResults.style.display = 'none';
-                if (cardsContainer) cardsContainer.style.display = 'block';
+                if (documentContainer) documentContainer.style.display = 'block';
             }
         });
     }
@@ -654,7 +903,7 @@ function generatePaginationScript(itemsPerPage) {
         // Show cards for current page
         const startIndex = (pageNumber - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        
+
         for (let i = startIndex; i < endIndex && i < allCards.length; i++) {
             allCards[i].style.display = 'block';
         }
@@ -662,7 +911,7 @@ function generatePaginationScript(itemsPerPage) {
         // Update pagination buttons
         const pageButtons = document.querySelectorAll('.page-btn');
         pageButtons.forEach(btn => btn.classList.remove('active'));
-        
+
         const activeBtn = Array.from(pageButtons).find(btn => btn.textContent == pageNumber);
         if (activeBtn) activeBtn.classList.add('active');
 
@@ -675,13 +924,13 @@ function generatePaginationScript(itemsPerPage) {
 async function generateDocumentationWithConfig(config) {
   try {
     console.log('🔄 Fetching cards from selected lists...');
-    
+
     // Fetch cards from selected lists
     const listIds = config.selectedLists.map(list => list.id);
     const cards = await trelloApi.fetchCardsFromLists(listIds, config.showAttachments);
-    
+
     console.log(`📝 Processing ${cards.length} cards...`);
-    
+
     // Process each card
     for (let i = 0; i < cards.length; i++) {
       const card = cards[i];
