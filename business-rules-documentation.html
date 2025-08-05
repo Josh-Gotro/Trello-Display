@@ -1,0 +1,1598 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Benefits Requirements - Business Rules</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f6fa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+
+        .search-section {
+            background: white;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus { border-color: #667eea; }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .rule-card {
+            background: white;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .rule-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .rule-header {
+            padding: 1.5rem 1.5rem 1rem;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .rule-title { font-size: 1.4rem; margin-bottom: 0.5rem; }
+        .rule-title a { color: #333; text-decoration: none; }
+        .rule-title a:hover { color: #667eea; }
+
+        .rule-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .label {
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: white;
+            font-weight: 500;
+        }
+
+        .rule-id, .attachment-indicator, .embedded-indicator {
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .rule-id { background: #f1f3f4; color: #666; }
+        .attachment-indicator { background: #667eea; color: white; }
+
+
+        .rule-content { padding: 1.5rem; }
+        .rule-content h1, .rule-content h2, .rule-content h3 {
+            margin: 1rem 0 0.5rem;
+            color: #333;
+        }
+        .rule-content h1 { font-size: 1.3rem; }
+        .rule-content h2 { font-size: 1.2rem; }
+        .rule-content h3 { font-size: 1.1rem; }
+        .rule-content p { margin-bottom: 1rem; }
+
+        .rule-content code {
+            background: #f8f9fa;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+
+        .rule-content pre {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .rule-content pre code {
+            background: none;
+            padding: 0;
+        }
+
+
+
+        .embedded-image {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .card-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e1e8ed;
+        }
+
+        .image-caption {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .image-error {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border: 1px dashed #dee2e6;
+            border-radius: 8px;
+            text-align: center;
+            color: #666;
+        }
+
+        .error-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-text {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .error-help {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .image-placeholder {
+            display: none;
+        }
+
+        /* Attachment Gallery */
+        .attachment-gallery {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e1e8ed;
+        }
+
+        .attachment-gallery h4 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .attachment-list {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+
+
+        .attachment-card {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .attachment-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: #667eea;
+        }
+
+        .attachment-info { flex: 1; min-width: 0; }
+        .attachment-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+            word-break: break-word;
+        }
+
+        .attachment-meta {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .error-note {
+            font-size: 0.8rem;
+            color: #dc3545;
+            margin-top: 0.25rem;
+        }
+
+                 .comments-section {
+             margin-top: 1.5rem;
+             padding-top: 1rem;
+             border-top: 1px solid #e1e8ed;
+         }
+
+         .comments-section h4 {
+             margin-bottom: 1rem;
+             color: #333;
+             font-size: 1rem;
+         }
+
+         .comments-list {
+             display: flex;
+             flex-direction: column;
+             gap: 1rem;
+         }
+
+         .comment-item {
+             background: #f8f9fa;
+             border-radius: 8px;
+             padding: 1rem;
+             border-left: 4px solid #667eea;
+         }
+
+         .comment-header {
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             margin-bottom: 0.5rem;
+             font-size: 0.85rem;
+         }
+
+         .comment-author {
+             font-weight: 600;
+             color: #333;
+         }
+
+         .comment-date {
+             color: #666;
+             font-size: 0.8rem;
+         }
+
+         .comment-content {
+             color: #333;
+             line-height: 1.5;
+             white-space: pre-wrap;
+         }
+
+         .rule-comments {
+             display: none;
+         }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .container { padding: 0 0.5rem; }
+            .rule-header, .rule-content { padding: 1rem; }
+            .attachment-list { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Business Rules Documentation</h1>
+            <p>Health Benefits Requirements System</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="search-section">
+            <input type="text" class="search-box" placeholder="Search business rules..." id="searchBox">
+            <div class="stats">
+                <span id="resultCount">38 business rules • NaN attachments</span>
+                <span>Generated: 8/5/2025, 11:36:08 AM</span>
+            </div>
+        </div>
+
+        <div id="rulesContainer">
+        <div class="rule-card" data-search="open enrollment workflow - initially populated selection rules confirm from ronan in 10/3 email that we should have bert replicate sims' behavior for this, which is the following:
+
+1. opt-outs are reset (both for ee-only/family and for full opt-out)
+2. hfsa is preserved – both the option (streamlining / no streamlining) and the amount.  i believe the amount was capped/bumped up if the hfsa max/min changed (shouldn’t be an issue for this year since hfsa limits are not changing)">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/ONTIordS/713-open-enrollment-workflow-initially-populated-selection-rules" target="_blank" title="View in Trello">Open Enrollment Workflow - Initially Populated Selection Rules</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#713</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Confirm from Ronan in 10/3 email that we should have BERT replicate SIMS' behavior for this, which is the following:</p><p>1. Opt-outs are reset (both for EE-Only/Family and for full opt-out)<br>2. HFSA is preserved – both the option (Streamlining / No Streamlining) and the amount.  I believe the amount was capped/bumped up if the HFSA max/min changed (shouldn’t be an issue for this year since HFSA limits are not changing)</p>
+           </div>
+           
+    <div class="comments-section">
+      <h4>💬 Comments (2)</h4>
+      <div class="comments-list">
+        
+        <div class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">Jason Hickey</span>
+            <span class="comment-date">10/3/2024 at 12:17:11 PM</span>
+          </div>
+          <div class="comment-content">Emailed Ronan/Erin on 10/3</div>
+        </div>
+        <div class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">Jason Hickey</span>
+            <span class="comment-date">10/2/2024 at 12:15:31 PM</span>
+          </div>
+          <div class="comment-content">We should discuss with Ronan whether the opt-outs should be preserved or reverted (HFSA too).</div>
+        </div>
+      </div>
+    </div>
+        </div>
+        <div class="rule-card" data-search="bert member account / myrnb portal conflict detection/resolution since bert will be tracking associations between myalaskaid and employment separately from the existing myrnb portal tables (externalportal.userprofile and rbmi.personssn), discrepancies can arise – i.e., the portal may associate a myalaskaid with a different person than bert does.
+
+we need to model these cases and design a detection mechanism (plus possibilities for resolution of these conflicts).
+
+requires discussion with drb about the future of the portal before we start.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/XTNIDwXC/447-bert-member-account-myrnb-portal-conflict-detection-resolution" target="_blank" title="View in Trello">BERT Member Account / MyRnB Portal Conflict Detection/Resolution</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#447</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Since BERT will be tracking associations between MyAlaskaID and Employment separately from the existing MyRnB portal tables (EXTERNALPORTAL.USERPROFILE and RBMI.PERSONSSN), discrepancies can arise – i.e., the portal may associate a MyAlaskaID with a different person than BERT does.</p><p>We need to model these cases and design a detection mechanism (plus possibilities for resolution of these conflicts).</p><p>Requires discussion with DRB about the future of the portal before we start.</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="election period an election has an effective date range that govern both its coverage period and cost period.
+
+the coverage begins on the start date of the election and ends on the end date of the election. the actual coverage may be suspended due to a coverage gap period.
+
+the cost for an election is monthly and is not prorated. the election that determines the cost for a given month is the election that includes the 1st of the given month.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/QrCgA0b5/446-election-period" target="_blank" title="View in Trello">Election Period</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#446</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>An election has an effective date range that govern both its coverage period and cost period.</p><p>The coverage begins on the start date of the election and ends on the end date of the election. The actual coverage may be suspended due to a coverage gap period.</p><p>The cost for an election is monthly and is not prorated. The election that determines the cost for a given month is the election that includes the 1st of the given month.</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="bert election requirements/design this card will be broken up into separate requirements. this is information from discussions with drb staff.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/dBN2OU3Q/445-bert-election-requirements-design" target="_blank" title="View in Trello">BERT Election Requirements/Design</a>
+            </h2>
+                         <div class="rule-meta">
+               <span class="label" style="background-color: #00c2e0">Business Question</span>
+               <span class="rule-id">#445</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>This card will be broken up into separate requirements. This is information from discussions with DRB staff.</p>
+           </div>
+           
+    <div class="comments-section">
+      <h4>💬 Comments (1)</h4>
+      <div class="comments-list">
+        
+        <div class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">Martin T Phelan</span>
+            <span class="comment-date">1/3/2024 at 9:11:17 AM</span>
+          </div>
+          <div class="comment-content">**BERT remaining requirements questions**
+
+________________________________
+From: Mueca, Andrea B (DOA) <andrea.mueca@alaska.gov>
+Sent: Thursday, November 2, 2023 4:25 PM
+To: Jason Hickey <jason@Wostmann.com>; Tagsip, Ronan V H (DOA) <ronan.tagsip@alaska.gov>; Taylor, Sara D (DOA) <sara.taylor@alaska.gov>; Speegle, Marie M (DOA) <marie.speegle@alaska.gov> Cc: Rasmussen, Teri L (DOA) <teri.rasmussen@alaska.gov>; Humbert, Kris M (DOA) <kris.humbert@alaska.gov>; Zara Khan <zkhan@Wostmann.com>; Marty Phelan <Marty@Wostmann.com>; Luke Hawthorne <lhawthorne@Wostmann.com>; Josh Gauthreaux <josh.gauthreaux@wostmann.com> Subject: RE: BERT remaining requirements questions
+
+Jason,
+
+Please see our responses to these questions. We can chat tomorrow about them. Thanks. 
+
+Andrea
+
+From: Jason Hickey <jason@Wostmann.com>
+Sent: Thursday, November 2, 2023 12:15 PM
+To: Mueca, Andrea B (DOA) <andrea.mueca@alaska.gov>; Tagsip, Ronan V H (DOA) <ronan.tagsip@alaska.gov>; Taylor, Sara D (DOA) <sara.taylor@alaska.gov>; Speegle, Marie M (DOA) <marie.speegle@alaska.gov> Cc: Rasmussen, Teri L (DOA) <teri.rasmussen@alaska.gov>; Humbert, Kris M (DOA) <kris.humbert@alaska.gov>; Khan, Zara (DOA sponsored) <zkhan@wostmann.com>; Phelan, Marty (DOA sponsored) <marty@wostmann.com>; Hawthorne, Luke (DOA sponsored) <lhawthorne@wostmann.com>; Gauthreaux, Joshua (DOA sponsored) <josh.gauthreaux@wostmann.com> Subject: BERT remaining requirements questions
+
+CAUTION: This email originated from outside the State of Alaska mail system. Do not click links or open attachments unless you recognize the sender and know the content is safe. 
+
+Hi All,
+
+We’ve distilled the topics/questions for discussion remaining from our initial list down to the attached prioritized list to serve as the agenda for tomorrow’s meeting. 
+
+Thanks,
+
+Jason</div>
+        </div>
+      </div>
+    </div>
+        </div>
+        <div class="rule-card" data-search="mlwop / fmla coverage rules ">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/gw5yDCQw/210-mlwop-fmla-coverage-rules" target="_blank" title="View in Trello">MLWOP / FMLA coverage rules</a>
+            </h2>
+                         <div class="rule-meta">
+               <span class="label" style="background-color: #00c2e0">Business Question</span>
+               <span class="rule-id">#210</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="general design considerations and questions - drb ">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/pqxQqHpq/399-general-design-considerations-and-questions-drb" target="_blank" title="View in Trello">General Design Considerations and Questions - DRB</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#399</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="qualifying events and election approvals in general drb now considers almost all employment changes as a qualifying event. bert is currently only receiving employment changes when one of the three following elements change:
+
+- bargaining unit
+- part/full time indicator
+- health eligibility indicator
+
+in addition bert also receives the following employment events that are considered qualifying events:
+
+- hire/rehire
+- return from lwop/layoff
+
+elections for other qualifying events will be subject to drb approval since there is no information to match against.
+
+elections for the events bert knows about will be automatically approved once they come in from iris. they will be matched on the following criteria:
+
+- bargaining unit - exact match
+- full/part time indicator - exact match
+- health eligibility indicator - must always be y
+- event date - within the system set range (e.g. +/- 5 days)
+
+if the election event date is off by more than the system set range, then drb staff approval is required. if the bargainunit or full/part time indicator does not match, it will be ignored/rejected.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/QhwlR50O/411-qualifying-events-and-election-approvals" target="_blank" title="View in Trello">Qualifying Events and Election Approvals</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#411</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>In general DRB now considers almost all employment changes as a qualifying event. BERT is currently only receiving employment changes when one of the three following elements change:</p><p>- Bargaining Unit<br>- Part/Full Time Indicator<br>- Health Eligibility Indicator</p><p>In addition BERT also receives the following employment events that are considered qualifying events:</p><p>- Hire/Rehire<br>- Return from LWOP/Layoff</p><p>Elections for other qualifying events will be subject to DRB approval since there is no information to match against.</p><p>Elections for the events BERT knows about will be automatically approved once they come in from IRIS. They will be matched on the following criteria:</p><p>- Bargaining Unit - exact match<br>- Full/Part Time Indicator - exact match<br>- Health Eligibility Indicator - must always be Y<br>- Event Date - within the system set range (e.g. +/- 5 days)</p><p>If the election Event Date is off by more than the system set range, then DRB staff approval is required. If the BargainUnit or Full/Part Time Indicator does not match, it will be ignored/rejected.</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="election overrides ">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/fqLYOpeZ/412-election-overrides" target="_blank" title="View in Trello">Election Overrides</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#412</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="hins z code carryover between service 1. bert will respond to hins “z” codes more broadly than sims does today.  in particular, bert will not provide coverage to an otherwise-health-eligible member if finance has a z code in place.  a z code with an effective date on or before a member’s hire date will prevent them from enrolling in benefits.  additionally, a z code that arises during the course of a member’s employment will result in coverage being cancelled from that point forward.  (note that sims currently implements this second “after-arising” rule and ignores z codes on or before the hire date.)  the rules of when coverage will be stopped/started in response to changes in the z status (e.g., f -> z or z -> f) will be as follows:
+   1. when finance turns “on” the z code, coverage will end based on the first 1st rule – if the effective date of the z code is the 1st of a month, then coverage ends on the last day of the prior month; otherwise, coverage will end on the last day of the month of the z code effective date (examples: z code effective 3/1/2024 => coverage end date 2/29/2024.  z code effective 3/2/2024 => coverage end date 3/31/2024.)
+   2. when finance turns “off” the z code, coverage will start on the effective date of the new health-eligible code (i.e., on the effective date of the “f” or “p” that follows the “z”).">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/LlSfGFiu/413-hins-z-code-carryover-between-service" target="_blank" title="View in Trello">HINS Z Code Carryover between Service</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#413</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>1. BERT will respond to HINS “Z” codes more broadly than SIMS does today.  In particular, BERT will not provide coverage to an otherwise-health-eligible member if Finance has a Z code in place.  A Z code with an effective date on or before a member’s hire date will prevent them from enrolling in benefits.  Additionally, a Z code that arises during the course of a member’s employment will result in coverage being cancelled from that point forward.  (Note that SIMS currently implements this second “after-arising” rule and ignores Z codes on or before the hire date.)  The rules of when coverage will be stopped/started in response to changes in the Z status (e.g., F -> Z or Z -> F) will be as follows:<br>   1. When Finance turns “on” the Z code, coverage will end based on the first 1st rule – if the effective date of the Z code is the 1st of a month, then coverage ends on the last day of the prior month; otherwise, coverage will end on the last day of the month of the Z code effective date (Examples: Z code effective 3/1/2024 => coverage end date 2/29/2024.  Z code effective 3/2/2024 => coverage end date 3/31/2024.)<br>   2. When Finance turns “off” the Z code, coverage will start on the effective date of the new health-eligible code (i.e., on the effective date of the “F” or “P” that follows the “Z”).</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="published direct premium pay rules conflict with current process overview
+===
+the currently published rules on drb website seem to contradict the current coverage rules in sims. we need to clarify those rules for the bert design. we are specifically concerned with the **bold** below language:
+
+updated rule, effective january 1, 2020:
+===
+alaskacare eligible employees in lwop status on the first working day of the month will continue their health insurance coverage if they continue to timely pay their monthly insurance premium (through payroll deduction **or self-pay**). the employee will no longer be required to be in pay status for four hours on the first workday of the month.
+
+**it is the employee’s responsibility to ensure the alaskacare premium is paid in order to remain covered. this may require action on the employee’s part as the alaskacare premium may not automatically be deducted from an employee’s paycheck when the employee is in lwop status.**
+
+note: **leave of absence rules, such as seasonal leave of absence (slwop) remain the same and will still result in periods without coverage.**
+">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/mBo81UIT/255-published-direct-premium-pay-rules-conflict-with-current-process" target="_blank" title="View in Trello">Published Direct Premium Pay Rules Conflict with Current Process</a>
+            </h2>
+                         <div class="rule-meta">
+               <span class="label" style="background-color: #00c2e0">Business Question</span>
+               <span class="rule-id">#255</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Overview<br>===<br>The currently published rules on DRB website seem to contradict the current coverage rules in SIMS. We need to clarify those rules for the BERT design. We are specifically concerned with the <strong>bold</strong> below language:</p><p>Updated Rule, effective January 1, 2020:<br>===<br>AlaskaCare eligible employees in LWOP status on the first working day of the month will continue their health insurance coverage if they continue to timely pay their monthly insurance premium (through payroll deduction <strong>or self-pay</strong>). The employee will no longer be required to be in pay status for four hours on the first workday of the month.</p><p><strong>It is the employee’s responsibility to ensure the AlaskaCare premium is paid in order to remain covered. This may require action on the employee’s part as the AlaskaCare premium may not automatically be deducted from an employee’s paycheck when the employee is in LWOP status.</strong></p><p>Note: <strong>Leave of absence rules, such as Seasonal Leave of Absence (SLWOP) remain the same and will still result in periods without coverage.</strong><br>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="election costs ">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/c1dUK8P6/282-election-costs" target="_blank" title="View in Trello">Election Costs</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#282</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="benefit year the benefit year for health benefits is the calendar year.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/OU5fdHUE/283-benefit-year" target="_blank" title="View in Trello">Benefit Year</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#283</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>The benefit year for health benefits is the calendar year.</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="lwop end date interpretation for historical reasons, sims currently defines lwop_end_date as the first day back at work (i.e., the first day *not* on lwop).
+
+discussed in meeting with health team on 4/11/2022 -- decided to change this going forward in bert to align with business understanding of representing instead the last day on lwop.
+
+note that this change also matches the interpretation of service events (stand and end dates are *inclusive* -- i.e., the termination date/end date for service is the last day at work and not the first day not at work).  this also align with how the lwop segment appears in iris -- there is a start date and end date and then the next record shows the "return to work" event starting on the day following the lwop end date.
+
+the new interface view from employer services (empsrv.bert_employment_event, which is represented in bert by the synonym es_employment_event) will be written to reflect this, and so the end_date field for the core bert table employment_event should also be interpreted to be the last day of the period for all employment event types.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/DL3Mh6LE/253-lwop-end-date-interpretation" target="_blank" title="View in Trello">LWOP End Date Interpretation</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#253</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>For historical reasons, SIMS currently defines LWOP_END_DATE as the first day back at work (i.e., the first day *not* on LWOP).</p><p>Discussed in meeting with Health team on 4/11/2022 -- decided to change this going forward in BERT to align with business understanding of representing instead the last day on LWOP.</p><p>Note that this change also matches the interpretation of Service events (stand and end dates are *inclusive* -- i.e., the Termination Date/End Date for Service is the last day at work and not the first day not at work).  This also align with how the LWOP segment appears in IRIS -- there is a Start Date and End Date and then the next record shows the "Return to Work" event starting on the day following the LWOP End Date.</p><p>The new interface view from Employer Services (EMPSRV.BERT_EMPLOYMENT_EVENT, which is represented in BERT by the synonym ES_EMPLOYMENT_EVENT) will be written to reflect this, and so the END_DATE field for the core BERT table EMPLOYMENT_EVENT should also be interpreted to be the last day of the period for ALL Employment Event Types.</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="period start/end dates all periods that have a start and end date, will be inclusive.
+
+the start date is the first effective date of the period.
+the end date is the last effective date of the period.
+
+for example a lwop start date is the first day that the employee is not at work and the end date is the last date that the employee is not at work.
+">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/GzG6BlWo/213-period-start-end-dates" target="_blank" title="View in Trello">Period Start/End Dates</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#213</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>All periods that have a start and end date, will be inclusive.</p><p>The start date is the first effective date of the period.<br>The end date is the last effective date of the period.</p><p>For example a LWOP start date is the first day that the employee is NOT at work and the end date is the last date that the employee is NOT at work.<br>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="business day definition for purposes of rules involving cost and coverage and the first of the month, most definitions specify the first business day of the month.
+
+the first business day of the month is normally the first day of the month unless:
+
+- the first day is a weekend day (saturday or sunday) in which case the first business day will be monday.
+- the first day of the month is a holiday in which case the first business day will be the next non-weekend day.
+">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/B9LpDL0c/248-business-day-definition" target="_blank" title="View in Trello">Business Day Definition</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#248</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>For purposes of rules involving cost and coverage and the first of the month, most definitions specify the first business day of the month.</p><p>The first business day of the month is normally the first day of the month unless:</p><p>- The first day is a weekend day (Saturday or Sunday) in which case the first business day will be Monday.<br>- The first day of the month is a Holiday in which case the first business day will be the next non-weekend day.<br>
+           </div>
+           
+    <div class="comments-section">
+      <h4>💬 Comments (1)</h4>
+      <div class="comments-list">
+        
+        <div class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">Martin T Phelan</span>
+            <span class="comment-date">3/22/2022 at 1:08:39 PM</span>
+          </div>
+          <div class="comment-content">From 7/30/2020 Requirements Meeting Notes:
+
+Ronan has feedback on 1st of the month weekend/holiday question: Finance does look to the first business day when determining whether a person is active/benefits eligible (they do not disrupt coverage if a person was on leave on Jan 1, but has returned on the next business day) 
+
+Decision: 1st business day of the month will be used by the system for the eligibility determination.  This could cause issues for members with unusual work schedules (e.g. members who are normally scheduled to work on weekends/holidays).  Andrea will discuss further with Finance, but since the number of cases with leave/1st of the month involving these people should be small, we could just rely on the SIMS/HI Code discrepancy detection to flag these cases and eligibility could be changed manually.</div>
+        </div>
+      </div>
+    </div>
+        </div>
+        <div class="rule-card" data-search="benefit eligibility, election, coverage and cost lifecycles # overview
+
+the system will track the periods of eligibility, election, coverage and costs for benefits. the overarching period is eligibility. below that is the election period. finally, under the election period are the cost and coverage periods.
+
+![image.png](https://trello.com/1/cards/5f4ebccafcbb2137daf5014a/attachments/68925968559d598419a12141/download/image.png)
+
+the following is the lifecycle.
+
+![image.png](https://trello.com/1/cards/5f4ebccafcbb2137daf5014a/attachments/68925977dd57858d28a2b721/download/image.png)">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/CZiWbIo8/5-benefit-eligibility-election-coverage-and-cost-lifecycles" target="_blank" title="View in Trello">Benefit Eligibility, Election, Coverage and Cost Lifecycles</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#5</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <h1>Overview</h1><p>The system will track the periods of eligibility, election, coverage and costs for benefits. The overarching period is eligibility. Below that is the election period. Finally, under the election period are the cost and coverage periods.</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f4ebccafcbb2137daf5014a/attachments/68925968559d598419a12141/download/image.png" alt="image.png" class="card-image" loading="lazy"><br>      <div class="image-caption">image.png</div><br>    </div><p>The following is the lifecycle.</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f4ebccafcbb2137daf5014a/attachments/68925977dd57858d28a2b721/download/image.png" alt="image.png" class="card-image" loading="lazy"><br>      <div class="image-caption">image.png</div><br>    </div>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="election startup notes when an employee is hired, a new election is created with a start date based on the 31st day rule.
+
+a coverage gap is also created with the hire date as the start date and the 30th day as the end date.
+
+during hins processing, the probation period may change because of an lwop. in that case, the election start date and the gap end date are adjusted.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/rYUtFvdW/188-election-startup-notes" target="_blank" title="View in Trello">Election Startup Notes</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#188</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>When an employee is hired, a new election is created with a start date based on the 31st day rule.</p><p>A coverage gap is also created with the hire date as the start date and the 30th day as the end date.</p><p>During HINS processing, the probation period may change because of an LWOP. In that case, the election start date and the gap end date are adjusted.</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="lwop - same month lwop begins and ends in same month
+---
+
+![lwop case 1](https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfaca910ab37f90d0280/download/lwop_case_1.png)
+
+**description:** participant is health eligible and enrolled on jun 1st, starts lwop jul 15th and ends/returns to work jul 20th
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	jun 1st and jul 1st are business days
+
+**postconditions:** 
+1.	participant’s coverage is unaffected
+2.	ee/er cost obligation is unaffected
+
+
+lwop ends on 1st of following month
+---
+
+![lwop case 2](https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfbb80bcf73aef891663/download/lwop_case_2.png)
+
+**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15th and ends/returns to work jul 1st
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	jun 1st and jul 1st are business days
+
+**postconditions:** 
+1.	participant’s coverage is unaffected
+2.	ee/er cost obligation is unaffected
+
+lwop begins 1st business day of month
+---
+
+![lwop case 4](https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfda33fd89177879732c/download/lwop_case_4.png)
+
+**description:** participant is health eligible and enrolled on jun 1st and starts lwop jul 1st and ends/returns to work on jul 15th
+
+**primary actor:** participant	
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	jun 1st and jul 1st are business days
+
+**postconditions:**
+1.	participant’s coverage ends after jun 30th
+2.	participant’s coverage resumes on jul 15th
+3.	ee/er cost obligation includes jun but not jul
+
+
+multiple lwop in same month
+---
+
+![lwop case 6](https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfe0f23aa470a2af7182/download/lwop_case_6.png)
+
+**description:** participant is health eligible and enrolled jun 1st, starts lwop jul 2nd, ends lwop/returns to work on jul 7th and then begins lwop again on jun 20th and ends lwop/returns to work again on jul 31st
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	jun 1st and jul 1st are business days
+
+**postconditions:**
+1.	participant’s coverage is unaffected
+2.	ee/er cost obligation is unaffected">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/1URtfMOK/16-lwop-same-month" target="_blank" title="View in Trello">LWOP - Same month</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#16</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>LWOP Begins and Ends in Same Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfaca910ab37f90d0280/download/LWOP_Case_1.png" alt="LWOP Case 1" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 1</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jul 15th and ends/returns to work Jul 20th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage is unaffected<br>2.	EE/ER Cost Obligation is unaffected</p><p><br>LWOP Ends on 1st of Following Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfbb80bcf73aef891663/download/LWOP_Case_2.png" alt="LWOP Case 2" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 2</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15th and ends/returns to work Jul 1st</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage is unaffected<br>2.	EE/ER Cost Obligation is unaffected</p><p>LWOP Begins 1st Business Day of Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfda33fd89177879732c/download/LWOP_Case_4.png" alt="LWOP Case 4" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 4</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st and starts LWOP Jul 1st and ends/returns to work on Jul 15th</p><p><strong>Primary Actor:</strong> Participant	</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage ends after Jun 30th<br>2.	Participant’s coverage resumes on Jul 15th<br>3.	EE/ER Cost Obligation includes Jun but not Jul</p><p><br>Multiple LWOP in Same Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfe0f23aa470a2af7182/download/LWOP_Case_6.png" alt="LWOP Case 6" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 6</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st, starts LWOP Jul 2nd, ends LWOP/returns to work on Jul 7th and then begins LWOP again on Jun 20th and ends LWOP/returns to work again on Jul 31st</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage is unaffected<br>2.	EE/ER Cost Obligation is unaffected</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="lwop - different months lwop crosses the 1st of the month
+---
+
+![lwop case 3](https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc34681e0303b19667fae/download/lwop_case_3.png)
+
+**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15th and ends/returns to work on jul 15th
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	jun 1st and jul 1st are business days
+
+**postconditions:** 
+1.	participant’s coverage ends after jun 30th
+2.	participant’s coverage resumes on jul 15th
+3.	participant has no coverage between jul 1st and jul 14th
+4.	ee/er cost obligation includes jun but not jul
+
+lwop on 1st business day of month and again within that month
+---
+
+![lwop case 5](https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc34c5787f74a084113b8/download/lwop_case_5.png)
+
+**description:** participant is health eligible and enrolled jun 1st, starts lwop jun 15th, ends lwop/returns to work on jul 5th, then begins a subsequent lwop segment on jul 7th and ends lwop/returns to work again on jul 20th
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	jun 1st and jul 1st are business days
+
+**postconditions:**
+1.	participant’s coverage ends after jun 30th
+2.	participant’s coverage resumes jul 5th and ends again after jul 6th
+3.	participant’s coverage resumes jul 20th
+4.	ee/er cost obligation includes jun but not jul
+
+1st business day of month is holiday (lwop ends on first actual business day)
+---
+
+![lwop case 7](https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc351e243be21a45b50e5/download/lwop_case_7.png)
+
+**description:** participant is health eligible and enrolled dec 1st, starts lwop dec 15th, ends lwop/returns to work on jan 2nd (first business day after the jan 1st holiday)
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on dec 1st
+2.	jan 1st is a holiday
+3.	health enrollment/eligibility date is calculated using first business day of month after holiday
+a.	jan 2nd is the first business day on the month (e.g. jan 1st is a monday and jan 2nd is a tuesday)
+
+**postconditions:**
+1.	participant’s coverage is unaffected
+2.	ee/er cost obligation is unaffected
+
+1st business day of month is holiday (lwop does not end on first actual business day)
+---
+
+![lwop case 8](https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc3571c0a1a89059d1269/download/lwop_case_8.png)
+
+**description:** participant is health eligible and enrolled dec 1st, starts lwop dec 15th, ends lwop/returns to work on jan 3rd
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible or enrolled in health benefits on dec 1st
+2.	jan 1st is a holiday
+3.	jan 3rd is a business day
+4.	health enrollment/eligibility date is calculated using first business day of month after holiday
+a.	jan 2nd is the first business day on the month (e.g. jan 1st is a monday and jan 2nd is a tuesday)
+
+**postconditions:**
+1.	participant’s coverage ends after dec. 31st and resumes jan 3rd
+2.	ee/er cost obligation includes dec but not jan">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/XWIb10My/17-lwop-different-months" target="_blank" title="View in Trello">LWOP - Different months</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#17</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>LWOP Crosses the 1st of the Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc34681e0303b19667fae/download/LWOP_Case_3.png" alt="LWOP Case 3" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 3</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15th and ends/returns to work on Jul 15th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage ends after Jun 30th<br>2.	Participant’s coverage resumes on Jul 15th<br>3.	Participant has no coverage between Jul 1st and Jul 14th<br>4.	EE/ER Cost Obligation includes Jun but not Jul</p><p>LWOP on 1st Business Day of Month and again within that month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc34c5787f74a084113b8/download/LWOP_Case_5.png" alt="LWOP Case 5" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 5</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st, starts LWOP Jun 15th, ends LWOP/returns to work on Jul 5th, then begins a subsequent LWOP segment on Jul 7th and ends LWOP/returns to work again on Jul 20th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage ends after Jun 30th<br>2.	Participant’s coverage resumes Jul 5th and ends again after Jul 6th<br>3.	Participant’s coverage resumes Jul 20th<br>4.	EE/ER Cost Obligation includes Jun but not Jul</p><p>1st Business Day of Month is Holiday (LWOP ends on first actual business day)<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc351e243be21a45b50e5/download/LWOP_Case_7.png" alt="LWOP Case 7" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 7</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Dec 1st, starts LWOP Dec 15th, ends LWOP/returns to work on Jan 2nd (first business day after the Jan 1st Holiday)</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Dec 1st<br>2.	Jan 1st is a holiday<br>3.	Health Enrollment/Eligibility date is calculated using first business day of month after holiday<br>a.	Jan 2nd is the first business day on the month (e.g. Jan 1st is a Monday and Jan 2nd is a Tuesday)</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage is unaffected<br>2.	EE/ER Cost Obligation is unaffected</p><p>1st Business Day of Month is Holiday (LWOP does not end on first actual business day)<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc3571c0a1a89059d1269/download/LWOP_Case_8.png" alt="LWOP Case 8" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 8</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Dec 1st, starts LWOP Dec 15th, ends LWOP/returns to work on Jan 3rd</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible or enrolled in health benefits on Dec 1st<br>2.	Jan 1st is a holiday<br>3.	Jan 3rd is a business day<br>4.	Health Enrollment/Eligibility date is calculated using first business day of month after holiday<br>a.	Jan 2nd is the first business day on the month (e.g. Jan 1st is a Monday and Jan 2nd is a Tuesday)</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage ends after Dec. 31st and resumes Jan 3rd<br>2.	EE/ER Cost Obligation includes Dec but not Jan</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="lwop - seasonal seasonal leave where bargaining unit is not ss
+---
+
+![lwop case 9](https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc46b1860964ecd66364f/download/lwop_case_9.png)
+
+**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15th and ends lwop/returns to work on jul 15th
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	participant’s bargaining unit is not ss
+3.	lwop is of type seasonal
+4.	jun 1st is a business day
+
+**postconditions:** 
+1.	participant’s coverage ends after jun 30th and resumes jul 15th
+2.	ee/er cost obligation includes jun but not jul
+
+seasonal leave where bargaining unit is ss
+---
+
+![lwop case 10](https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc476cd2715268cd42ed5/download/lwop_case_10.png)
+
+**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15thand ends lwop/returns to work on jul 15th
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	participant’s bargaining unit is ss
+3.	lwop is of type seasonal
+4.	jun 1st and jul 1st are business days
+
+**postconditions:** 
+1.	participant’s coverage is unaffected
+2.	ee cost obligation includes jun but not jul
+3.	er cost obligation is unaffected
+
+seasonal leave where bargaining unit is ss (lwop spans three months and ends in the third month)
+---
+
+![lwop case 11](https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc47dabda37585ba78bd6/download/lwop_case_11.png)
+
+**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15th and ends lwop/returns to work aug 15th
+
+**primary actor:** participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	participant’s bargaining unit is ss
+3.	lwop is of type seasonal
+4.	jun 1st, jul 1st, and aug 1st are business days
+
+**postconditions:** 
+1.	participant’s coverage ends after jul 31st and resumes aug 15th
+2.	ee cost obligation includes jun but not jul or aug
+3.	er cost obligation includes for jun and jul but not aug">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/JAEn7m04/18-lwop-seasonal" target="_blank" title="View in Trello">LWOP - Seasonal</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#18</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Seasonal Leave where Bargaining Unit is Not SS<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc46b1860964ecd66364f/download/LWOP_Case_9.png" alt="LWOP Case 9" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 9</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15th and ends LWOP/returns to work on Jul 15th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Participant’s Bargaining Unit is not SS<br>3.	LWOP is of type Seasonal<br>4.	Jun 1st is a business day</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage ends after Jun 30th and resumes Jul 15th<br>2.	EE/ER Cost Obligation includes Jun but not Jul</p><p>Seasonal Leave where Bargaining Unit is SS<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc476cd2715268cd42ed5/download/LWOP_Case_10.png" alt="LWOP Case 10" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 10</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15thand ends LWOP/returns to work on Jul 15th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Participant’s Bargaining Unit is SS<br>3.	LWOP is of type Seasonal<br>4.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage is unaffected<br>2.	EE Cost Obligation includes Jun but not Jul<br>3.	ER Cost Obligation is unaffected</p><p>Seasonal Leave where Bargaining Unit is SS (LWOP spans three months and ends in the third month)<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc47dabda37585ba78bd6/download/LWOP_Case_11.png" alt="LWOP Case 11" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 11</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15th and ends LWOP/returns to work Aug 15th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Participant’s Bargaining Unit is SS<br>3.	LWOP is of type Seasonal<br>4.	Jun 1st, Jul 1st, and Aug 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage ends after Jul 31st and resumes Aug 15th<br>2.	EE Cost Obligation includes Jun but not Jul or Aug<br>3.	ER Cost Obligation includes for Jun and Jul but not Aug</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="lwop - military military leave with userra
+---
+
+![lwop case 12](https://trello.com/1/cards/5f5bb0c67fc4560d0772f045/attachments/5f5bc528ba65591bc355ab13/download/lwop_case_12.png)
+
+**description:** participant is health eligible and enrolled jun 1st and starts lwop (military leave) jun 15th
+
+**primary actor:** military participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	jun 1st is a business day
+3.	lwop type is military leave
+4.	participant has elected to use userra
+
+**postconditions:** 
+1.	participant is covered until end of military leave or for 24 months, whichever occurs first
+2.	ee/er cost obligation is until end of military leave or for 24 months, whichever occurs first
+a.	ee cost obligation is paid via check and not payroll deduction
+
+military leave without userra
+---
+
+![lwop case 13](https://trello.com/1/cards/5f5bb0c67fc4560d0772f045/attachments/5f5bc52f5e4d1f5f60f2465d/download/lwop_case_13.png)
+
+**description:** participant is health eligible and enrolled jun 1st and starts lwop (military leave) jun 15th
+
+**primary actor:** military participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	jun 1st is a business day
+3.	lwop type is military leave
+4.	participant has opted out of userra
+
+**postconditions:** 
+1.	participant’s coverage ends after jun 30th
+2.	ee/er cost obligation ends after jun">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/WE0gXeKB/19-lwop-military" target="_blank" title="View in Trello">LWOP - Military</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#19</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Military Leave with USERRA<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c67fc4560d0772f045/attachments/5f5bc528ba65591bc355ab13/download/LWOP_Case_12.png" alt="LWOP Case 12" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 12</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st and starts LWOP (Military Leave) Jun 15th</p><p><strong>Primary Actor:</strong> Military Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st is a business day<br>3.	LWOP type is Military Leave<br>4.	Participant has elected to use USERRA</p><p><strong>Postconditions:</strong> <br>1.	Participant is covered until end of Military Leave or for 24 months, whichever occurs first<br>2.	EE/ER Cost Obligation is until end of Military Leave or for 24 months, whichever occurs first<br>a.	EE Cost Obligation is paid via check and not payroll deduction</p><p>Military Leave without USERRA<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c67fc4560d0772f045/attachments/5f5bc52f5e4d1f5f60f2465d/download/LWOP_Case_13.png" alt="LWOP Case 13" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 13</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st and starts LWOP (Military Leave) Jun 15th</p><p><strong>Primary Actor:</strong> Military Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st is a business day<br>3.	LWOP type is Military Leave<br>4.	Participant has opted out of USERRA</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage ends after Jun 30th<br>2.	EE/ER Cost Obligation ends after Jun</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="lwop - family family leave
+---
+
+![lwop case 14](https://trello.com/1/cards/5f5bb0ca030c3a26acd688f4/attachments/5f5bc586aa2bdf24df26fae7/download/lwop_case_14.png)
+
+**description:** participant is health eligible and enrolled jun 1st and starts lwop (fmla) jun 15th
+
+**primary actor:** family leave participant
+
+**preconditions:**
+1.	participant is health eligible and enrolled in health benefits on jun 1st
+2.	jun 1st is a business day
+3.	lwop type is fmla
+4.	participant has elected to use fmla
+
+**postconditions:** 
+1.	participant is covered until end of family leave or for 12 months, whichever occurs first
+2.	ee/er cost obligation is until end of family leave or for 12 months, whichever occurs first
+a.	ee cost obligation is paid via check and not payroll deduction">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/9eIfGEI7/20-lwop-family" target="_blank" title="View in Trello">LWOP - Family</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#20</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Family Leave<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0ca030c3a26acd688f4/attachments/5f5bc586aa2bdf24df26fae7/download/LWOP_Case_14.png" alt="LWOP Case 14" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 14</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st and starts LWOP (FMLA) Jun 15th</p><p><strong>Primary Actor:</strong> Family Leave Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st is a business day<br>3.	LWOP type is FMLA<br>4.	Participant has elected to use FMLA</p><p><strong>Postconditions:</strong> <br>1.	Participant is covered until end of Family Leave or for 12 months, whichever occurs first<br>2.	EE/ER Cost Obligation is until end of Family Leave or for 12 months, whichever occurs first<br>a.	EE Cost Obligation is paid via check and not payroll deduction</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="coverage begins ## new employees
+
+**full-time:**
+
+coverage begins on 31st consecutive day that employee is in pay status, provided no lwop. employee must elect to waive coverage.
+
+in event of lwop, coverage begins on 31st consecutive day that employee is in pay status from end date of lwop.
+
+_alaskacare booklet states: "...in no event will your waiting period be longer than 90 calendar days, if you are at work and in pay status on such date." is that regardless of length of lwop during first 90 days?_
+
+a: 90 regardless of lwop status
+
+**part-time:**
+
+provided employee has enrolled in coverage during first 30 days of employment, coverage begins on 31st consecutive day that employee is in pay status.
+
+_what about lwop_?
+
+## term/rehire
+
+if you are are rehired within 7 days from end date of coverage, your coverage resumes the day you return to work. if not, you follow the new employee process.
+
+notes from 8/6 requirements meeting:
+
+term/rehire
+
+- generally, a termination followed by a rehire triggers the 31-day waiting period again
+- _exception_: if a member is terminated and then rehired in benefits-eligible position 7 calendar days or fewer from the end of coverage in prior position, then coverage resumes **immediately** upon rehire (no waiting period)
+  - **example 1**: member has health coverage, terminates on 8/7/2020. member is rehired on 9/7/2020. coverage ended on 8/31/2020, so the rehire is within the 7-day window and coverage starts immediately on 9/7/2020.
+  - **example 2**: same facts as example 1, except that the rehire date is 9/8/2020 instead. now, member is outside the 7-day window, so must go through waiting period again. coverage in new position will start on 10/08/2020 (assuming member is continually in pay status during waiting period).
+- this only applies to actual service terminations / separation events. for example, it does not apply to layoff, which operates the same as a normal lwop/loa event
+
+## from non-participating bu to participating bu
+
+coverage begins on first day of month after date of bargaining unit change unless employee elects to waive coverage. if change date is first of month, new coverage is effective that same day.
+
+_first business day or calendar day?_
+
+## dependents
+
+coverage of eligible dependents begins the same day that your coverage begins, provided that you have enrolled them and updated your elections to family coverage within the first 30 days of employment.
+
+newborns are automatically covered for the first 31 days after birth. after 31 days, must be enrolled according to status change rules
+
+## surviving dependents of peace officers and firefighters
+
+coverage begins the first day of the month following acknowledgement from department of public safety that surviving dependent is eligible.
+
+_first business day or calendar day?_">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/x6c8HA6j/21-coverage-begins" target="_blank" title="View in Trello">Coverage Begins</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#21</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <h2>New Employees</h2><p><strong>Full-Time:</strong></p><p>Coverage begins on 31st consecutive day that employee is in pay status, provided no LWOP. Employee must elect to waive coverage.</p><p>In event of LWOP, coverage begins on 31st consecutive day that employee is in pay status from end date of LWOP.</p><p>_AlaskaCare booklet states: "...in no event will your waiting period be longer than 90 calendar days, if you are at work and in pay status on such date." Is that regardless of length of LWOP during first 90 days?_</p><p>A: 90 regardless of LWOP status</p><p><strong>Part-Time:</strong></p><p>Provided employee has enrolled in coverage during first 30 days of employment, coverage begins on 31st consecutive day that employee is in pay status.</p><p>_What about LWOP_?</p><h2>Term/Rehire</h2><p>If you are are rehired within 7 days from end date of coverage, your coverage resumes the day you return to work. If not, you follow the New Employee process.</p><p>Notes from 8/6 Requirements meeting:</p><p>Term/Rehire</p><p>- Generally, a termination followed by a rehire triggers the 31-day waiting period again<br>- _Exception_: if a member is terminated and then rehired in benefits-eligible position 7 calendar days or fewer from the end of coverage in prior position, then coverage resumes <strong>immediately</strong> upon rehire (no waiting period)<br>  - <strong>Example 1</strong>: Member has health coverage, terminates on 8/7/2020. Member is rehired on 9/7/2020. Coverage ended on 8/31/2020, so the rehire is within the 7-day window and coverage starts immediately on 9/7/2020.<br>  - <strong>Example 2</strong>: Same facts as Example 1, except that the rehire date is 9/8/2020 instead. Now, member is outside the 7-day window, so must go through waiting period again. Coverage in new position will start on 10/08/2020 (assuming member is continually in pay status during waiting period).<br>- This only applies to actual service terminations / separation events. For example, it does not apply to Layoff, which operates the same as a normal LWOP/LOA event</p><h2>From Non-Participating BU to Participating BU</h2><p>Coverage begins on first day of month after date of bargaining unit change unless employee elects to waive coverage. If change date is first of month, new coverage is effective that same day.</p><p>_First business day or calendar day?_</p><h2>Dependents</h2><p>Coverage of eligible dependents begins the same day that your coverage begins, provided that you have enrolled them and updated your elections to family coverage within the first 30 days of employment.</p><p>Newborns are automatically covered for the first 31 days after birth. After 31 days, must be enrolled according to status change rules</p><h2>Surviving Dependents of Peace Officers and Firefighters</h2><p>Coverage begins the first day of the month following acknowledgement from Department of Public Safety that surviving dependent is eligible.</p><p>_First business day or calendar day?_</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="coverage ends employees
+---
+
+1. date that plan or any benefit option under plan is terminated.
+2. date that plan or any benefit option under plan is waived.
+3. date employee dies.
+4. last day of month in which employee in pay status(active or lwop).
+5. last day of month in which employment terminated.
+6. last day of month in which hours reduced to where employee no longer eligible except in case of furlough under 2 aac 07.407
+7. last day of month in which employee moves to non-participating bu.
+8. last day of month in which any employee premium not paid.
+9. date employee joins any armed forces full-time.
+10. government shutdown, see p. 27 of alaskacare booklet
+
+*does it make any difference where the last day of the month falls?*
+
+*what if any of the above events happens on the 1st/31st?*
+
+dependents
+---
+
+1. date that plan or any benefit option under the plan is terminated.
+2. date that dependent coverage under plan or plan is terminated.
+3. date that dependent coverage under plan is waived.
+4. date of divorce, in case spouse is dependent.
+5. last day of month in which child ceases to qualify as dependent.
+6. date dependent dies.
+7. date employee coverage terminated, or last day of that month in case of employee death.
+8. last day of month in which any employee premium not paid.
+9. date employee terminates coverage for dependents.
+
+continued coverage
+---
+
+to research, applies under cobra, userra, and fmla.
+
+surviving dependents of peace officers and firefighters
+---
+
+1. date that plan or any benefit option under the plan is terminated.
+2. date that dependent coverage under plan or plan is terminated.
+5. last day of month in which dependent ceases to qualify.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/vXSCC154/22-coverage-ends" target="_blank" title="View in Trello">Coverage Ends</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#22</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Employees<br>---</p><p>1. Date that plan or any benefit option under plan is terminated.<br>2. Date that plan or any benefit option under plan is waived.<br>3. Date employee dies.<br>4. Last day of month in which employee in pay status(active or LWOP).<br>5. Last day of month in which employment terminated.<br>6. Last day of month in which hours reduced to where employee no longer eligible EXCEPT in case of furlough under 2 AAC 07.407<br>7. Last day of month in which employee moves to non-participating BU.<br>8. Last day of month in which any employee premium not paid.<br>9. Date employee joins any armed forces full-time.<br>10. Government shutdown, see p. 27 of AlaskaCare booklet</p><p>*Does it make any difference where the last day of the month falls?*</p><p>*What if any of the above events happens on the 1st/31st?*</p><p>Dependents<br>---</p><p>1. Date that plan or any benefit option under the plan is terminated.<br>2. Date that dependent coverage under plan or plan is terminated.<br>3. Date that dependent coverage under plan is waived.<br>4. Date of divorce, in case spouse is dependent.<br>5. Last day of month in which child ceases to qualify as dependent.<br>6. Date dependent dies.<br>7. Date employee coverage terminated, OR last day of that month in case of employee death.<br>8. Last day of month in which any employee premium not paid.<br>9. Date employee terminates coverage for dependents.</p><p>Continued Coverage<br>---</p><p>To research, applies under COBRA, USERRA, and FMLA.</p><p>Surviving Dependents of Peace Officers and Firefighters<br>---</p><p>1. Date that plan or any benefit option under the plan is terminated.<br>2. Date that dependent coverage under plan or plan is terminated.<br>5. Last day of month in which dependent ceases to qualify.</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="coverage change ">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/6ynzX3hi/23-coverage-change" target="_blank" title="View in Trello">Coverage Change</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#23</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="election reasons election reason
+---
+```
+0	unknown
+1	newly hired employee
+2	new child (birth or adoption)
+3	death of dependent
+4	change in marital status
+5	child no longer eligible for benefit coverage
+6	spouse begins/ends employment
+7	establish/terminate same-sex partner relationship
+8	change in spouses health coverage
+9	spouse begins unpaid leave
+10	health coverage change due to bargaining unit change
+11	short-term from/to long-term/nonperm or permanent
+12	open enrollment
+13	rehire
+14	member change from/to full time/part time
+15	spouse change from/to full time/part time
+16	user override
+17	appeal
+18	benefits correction by staff
+19	return from extended unpaid leave/layoff
+20	life insurance final action
+21	finance eligibility indicator override
+99	conversion
+```
+election reason category
+---
+```
+1	employment change automatic
+2	employee choice
+3	administrative override
+4	open enrollment automatic
+```
+">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/EQDx3HcZ/26-election-reasons" target="_blank" title="View in Trello">Election Reasons</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#26</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Election Reason<br>---<br><pre><code><br>0	Unknown<br>1	Newly Hired Employee<br>2	New Child (Birth or Adoption)<br>3	Death of Dependent<br>4	Change in Marital Status<br>5	Child No Longer Eligible for Benefit Coverage<br>6	Spouse Begins/Ends Employment<br>7	Establish/Terminate Same-Sex Partner Relationship<br>8	Change in Spouses Health Coverage<br>9	Spouse Begins Unpaid Leave<br>10	Health Coverage Change Due To Bargaining Unit Change<br>11	Short-Term From/To Long-Term/NonPerm or Permanent<br>12	Open Enrollment<br>13	Rehire<br>14	Member Change from/to Full Time/Part Time<br>15	Spouse Change from/to Full Time/Part Time<br>16	User Override<br>17	Appeal<br>18	Benefits Correction by Staff<br>19	Return from Extended Unpaid Leave/Layoff<br>20	Life Insurance Final Action<br>21	Finance Eligibility Indicator Override<br>99	Conversion<br></code></pre><br>Election Reason Category<br>---<br><pre><code><br>1	Employment Change Automatic<br>2	Employee Choice<br>3	Administrative Override<br>4	Open Enrollment Automatic<br></code></pre><br>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="iris health indicator codes iris was designed wit h a special data structure to maintain health eligibility information. this data is manually entered and is not constrained by rules.
+
+the structure caries the following elements:
+
+- employee number
+- appointment code
+- effective date
+- expiration date
+- union loc code
+- health insurance status code
+
+the following are the status codes and their meanings:
+
+- a - aca eligible
+- d - declined/waived
+- f - ft eligible
+- l - loa/inactive
+- p - pt eligible
+- s - seas comp/no hi
+- w - wait period
+- x - loss eligibility
+- z - not eligible">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/TytSsGZO/47-iris-health-indicator-codes" target="_blank" title="View in Trello">IRIS Health Indicator Codes</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#47</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>IRIS Was designed wit h a special data structure to maintain health eligibility information. This data is manually entered and is not constrained by rules.</p><p>The structure caries the following elements:</p><p>- Employee Number<br>- Appointment Code<br>- Effective Date<br>- Expiration Date<br>- Union Loc Code<br>- Health Insurance Status Code</p><p>The following are the status codes and their meanings:</p><p>- A - ACA ELIGIBLE<br>- D - DECLINED/WAIVED<br>- F - FT ELIGIBLE<br>- L - LOA/INACTIVE<br>- P - PT ELIGIBLE<br>- S - SEAS COMP/NO HI<br>- W - WAIT PERIOD<br>- X - LOSS ELIGIBILITY<br>- Z - NOT ELIGIBLE</p>
+           </div>
+           
+    <div class="comments-section">
+      <h4>💬 Comments (1)</h4>
+      <div class="comments-list">
+        
+        <div class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">Martin T Phelan</span>
+            <span class="comment-date">10/15/2020 at 6:25:00 AM</span>
+          </div>
+          <div class="comment-content">HI Code Info
+Jason Hickey
+Tue 10/13/2020 11:24 AM
+ 
+
+AKPAY HI Status Codes in the DRB-130
+Darren Jaeckel
+Thu 6/16/2016 7:02 AM
+HEALTH_INS_STA_CD
+
+A - Full Time class 1
+B - Full Time class 2/3
+C - Part Time class 1
+D - Part Time class 2/3
+L - Layoff
+Z - Non-participant
+J - IST testing code, should be neglected.
+
+Zara also mentioned that the 19010101 date indicates “beginning of time” or when AKPAY went online.
+
+Cheers,
+-Darren</div>
+        </div>
+      </div>
+    </div>
+        </div>
+        <div class="rule-card" data-search="participation only the employees of employers who are allowed and have opted in to the various state of alaska employee health benefits will be participating in this system.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/aqLZfLfB/71-participation" target="_blank" title="View in Trello">Participation</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#71</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Only the employees of employers who are allowed and have opted in to the various State of Alaska employee health benefits will be participating in this system.</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="for hi, what is considered the 1st of the month? (esp amhs) ">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/G59P9qlX/87-for-hi-what-is-considered-the-1st-of-the-month-esp-amhs" target="_blank" title="View in Trello">For HI, what is considered the 1st of the Month? (esp AMHS)</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#87</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="employee layoff period can be laid off for up to 3 years (layoff).
+
+coverage after layoff is the same as terminated.
+
+if they return to work then....">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/eISqHGlb/88-employee-layoff-period" target="_blank" title="View in Trello">Employee Layoff Period</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#88</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Can be laid off for up to 3 years (Layoff).</p><p>Coverage after layoff is the same as terminated.</p><p>If they return to work then....</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="balance write-off after termination terminated with balance - then rehired - no collection
+
+after termination, seven days - do no write off.
+
+7 days after the end of the eligible month?
+">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/cZniPWV9/90-balance-write-off-after-termination" target="_blank" title="View in Trello">Balance Write-Off after Termination</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#90</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Terminated with balance - then rehired - no collection</p><p>After termination, seven days - do no write off.</p><p>7 days after the end of the eligible month?<br>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="balance owed write-off after termination ">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/hPkKh0mM/91-balance-owed-write-off-after-termination" target="_blank" title="View in Trello">Balance Owed Write-Off after Termination</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#91</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="payroll health insurance contributions not allowed for non-participants ">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/0BPW8Ka7/92-payroll-health-insurance-contributions-not-allowed-for-non-participants" target="_blank" title="View in Trello">Payroll Health Insurance Contributions Not Allowed for Non-Participants</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#92</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="leave without pay types leave without pay types
+---
+the following are the types of leave without pay. this list contains their iris code, title and a decription.
+
+- afla - lwop afla: indicates that the person is not in pay status beginning on the given effective date. also indicates that this lwop is qualified for health care coverage under afla.
+- actlwop - active lwop: trs only
+- fmla - lwop fmla: indicates that the person is not in pay status beginning on the given effective date. also indicates that this lwop is qualified for health care coverage under fmla.
+- layoff - layoff: indicates that the employee is in layoff status as of the given effective date. this status affects the ability to cash-out sbs or deferred comp, but not per/trs/jrs/epors.
+- lwop - lwop: indicates that the person is not in pay status beginning on the given effective date.
+- mfmla - military fmla: indicates that the person is in military leave beginning on the given effective date. also indicates that this leave is qualified for health care coverage under fmla.
+- milleave - military leave: indicates that the person is in military leave beginning on the given effective date.
+- sabbtcl - sabbatical: trs only
+- snlleave - seasonal leave: indicates that the person is not in pay status beginning on the given effective date. there is an expectation that they will be returning to work when the season begins again.
+- wcomp - workers comp: indicates that the person is not in pay status beginning on the given effective date to being on workers comp leave.
+">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/qFnr6jia/133-leave-without-pay-types" target="_blank" title="View in Trello">Leave Without Pay Types</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#133</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Leave Without Pay Types<br>---<br>The following are the types of leave without pay. This list contains their IRIS code, title and a decription.</p><p>- AFLA - LWOP AFLA: Indicates that the person is NOT in pay status beginning on the given effective date. Also indicates that this LWOP is qualified for health care coverage under AFLA.<br>- ACTLWOP - Active LWOP: TRS Only<br>- FMLA - LWOP FMLA: Indicates that the person is NOT in pay status beginning on the given effective date. Also indicates that this LWOP is qualified for health care coverage under FMLA.<br>- LAYOFF - Layoff: Indicates that the employee is in layoff status as of the given effective date. This status affects the ability to cash-out SBS or Deferred Comp, but not PER/TRS/JRS/EPORS.<br>- LWOP - LWOP: Indicates that the person is NOT in pay status beginning on the given effective date.<br>- MFMLA - Military FMLA: Indicates that the person is in Military leave beginning on the given effective date. Also indicates that this leave is qualified for health care coverage under FMLA.<br>- MILLEAVE - Military Leave: Indicates that the person is in Military leave beginning on the given effective date.<br>- SABBTCL - Sabbatical: TRS Only<br>- SNLLEAVE - Seasonal Leave: Indicates that the person is NOT in pay status beginning on the given effective date. There is an expectation that they will be returning to work when the season begins again.<br>- WCOMP - Workers Comp: Indicates that the person is not in pay status beginning on the given effective date to being on workers comp leave.<br>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="other transaction types other transaction types
+---
+the following is a list of the other transaction types.
+
+- employee/employer direct payments - these are either payments to the state by the employee (usually by a check) or payments made via a transfer of funds in the state accounting system in a transaction outside payroll. this is a credit on the account.
+- employee/employer direct refunds - these are either refunds of credit balance made to the employee from the state accounting system or refunds made via a transfer of funds in the state accounting system in a transaction outside payroll. this is a charge on the account.
+- write-off - this transaction simply writes-off an open amount for the employee or employer. these can be either positive or negative amounts. this is a credit on the account if positive, otherwise a charge on the account.
+">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/QVvUsuRh/148-other-transaction-types" target="_blank" title="View in Trello">Other Transaction Types</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#148</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Other Transaction Types<br>---<br>The following is a list of the other transaction types.</p><p>- Employee/Employer Direct Payments - these are either payments to the State by the employee (usually by a check) or payments made via a transfer of funds in the State accounting system in a transaction outside payroll. This is a credit on the account.<br>- Employee/Employer Direct Refunds - these are either refunds of credit balance made to the employee from the State accounting system or refunds made via a transfer of funds in the State accounting system in a transaction outside payroll. This is a charge on the account.<br>- Write-Off - this transaction simply writes-off an open amount for the employee or employer. These can be either positive or negative amounts. This is a credit on the account if positive, otherwise a charge on the account.<br>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="term/rehire -- coverage continuity term/rehire
+
+·         generally, a termination followed by a rehire triggers the 31-day waiting period again
+
+·         _exception_: if a member is terminated and then rehired in benefits-eligible position 7 calendar days or fewer from the end of coverage in prior position, then coverage resumes **immediately** upon rehire (no waiting period)
+
+o   **example 1**: member has health coverage, terminates on 8/7/2020.  member is rehired on 9/7/2020.  coverage ended on 8/31/2020, so the rehire is within the 7-day window and coverage starts immediately on 9/7/2020.
+
+o   **example 2**: same facts as example 1, except that the rehire date is 9/8/2020 instead.  now, member is outside the 7-day window, so must go through waiting period again.  coverage in new position will start on 10/08/2020 (assuming member is continually in pay status during waiting period).
+
+this only applies to actual service terminations / separation events.  for example, it does not apply to layoff, which operates the same as a normal lwop/loa event">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/jl3WflGb/324-term-rehire-coverage-continuity" target="_blank" title="View in Trello">Term/Rehire -- Coverage Continuity</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#324</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>Term/Rehire</p><p>·         Generally, a termination followed by a rehire triggers the 31-day waiting period again</p><p>·         _Exception_: if a member is terminated and then rehired in benefits-eligible position 7 calendar days or fewer from the end of coverage in prior position, then coverage resumes <strong>immediately</strong> upon rehire (no waiting period)</p><p>o   <strong>Example 1</strong>: Member has health coverage, terminates on 8/7/2020.  Member is rehired on 9/7/2020.  Coverage ended on 8/31/2020, so the rehire is within the 7-day window and coverage starts immediately on 9/7/2020.</p><p>o   <strong>Example 2</strong>: Same facts as Example 1, except that the rehire date is 9/8/2020 instead.  Now, member is outside the 7-day window, so must go through waiting period again.  Coverage in new position will start on 10/08/2020 (assuming member is continually in pay status during waiting period).</p><p>This only applies to actual service terminations / separation events.  For example, it does not apply to Layoff, which operates the same as a normal LWOP/LOA event</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="mil & hfsa **question:** for an employee on fmla/mil leave, do they keep the full set of benefits (except hfsa)?  how does fmla/mil interact with hfsa? is going on fmla/mil an allowed life change event for which they may change elections (e.g. drop hfsa, change coverage level)?
+
+**answer:** bert will rely on the current elections to govern what benefit premiums are expected. drb staff will be able to update elections and terminate the hfsa election  if needed. there are some cases with fmla where payments may be delinquent. the expectation that they will be collected when the employee returns to work.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/VbTfOCxS/361-mil-hfsa" target="_blank" title="View in Trello">MIL & HFSA</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#361</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p><strong>QUESTION:</strong> For an employee on FMLA/MIL Leave, do they keep the full set of benefits (except HFSA)?  How does FMLA/MIL interact with HFSA? Is going on FMLA/MIL an allowed life change event for which they may change elections (e.g. drop HFSA, change coverage level)?</p><p><strong>ANSWER:</strong> BERT will rely on the current Elections to govern what benefit premiums are expected. DRB staff will be able to update elections and terminate the HFSA election  if needed. There are some cases with FMLA where payments may be delinquent. The expectation that they will be collected when the employee returns to work.</p>
+           </div>
+           
+        </div>
+        <div class="rule-card" data-search="7 day rehire rule when rehired in following month there should be a gap in coverage if they are rehired in the month following the coverage end date even if it’s within 7 days of the coverage end date.">
+          <div class="rule-header">
+            <h2 class="rule-title">
+              <a href="https://trello.com/c/W3Kfum77/409-7-day-rehire-rule-when-rehired-in-following-month" target="_blank" title="View in Trello">7 day rehire rule when rehired in following month</a>
+            </h2>
+                         <div class="rule-meta">
+               
+               <span class="rule-id">#409</span>
+             </div>
+          </div>
+                                <div class="rule-content">
+             <p>There should be a gap in coverage if they are rehired in the month following the coverage end date even if it’s within 7 days of the coverage end date.</p>
+           </div>
+           
+        </div></div>
+
+        <div class="no-results" id="noResults">
+            <h3>No business rules found</h3>
+            <p>Try adjusting your search terms</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Generated from Trello Board: Health Benefits Requirements</p>
+        <p><small>Images are embedded directly from Trello</small></p>
+
+    </div>
+
+    <script>
+        const searchBox = document.getElementById('searchBox');
+        const rulesContainer = document.getElementById('rulesContainer');
+        const resultCount = document.getElementById('resultCount');
+        const noResults = document.getElementById('noResults');
+        const allRules = document.querySelectorAll('.rule-card');
+
+        searchBox.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            let visibleCount = 0;
+
+            allRules.forEach(rule => {
+                const searchData = rule.getAttribute('data-search');
+                if (searchData.includes(searchTerm)) {
+                    rule.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    rule.style.display = 'none';
+                }
+            });
+
+            const attachmentText = visibleCount === 38 ? ' • NaN attachments' : '';
+            resultCount.textContent = visibleCount + ' business rule' + (visibleCount !== 1 ? 's' : '') + attachmentText;
+
+            if (visibleCount === 0) {
+                noResults.style.display = 'block';
+                rulesContainer.style.display = 'none';
+            } else {
+                noResults.style.display = 'none';
+                rulesContainer.style.display = 'block';
+            }
+        });
+
+
+
+
+
+         // Smooth scroll for internal links
+         document.addEventListener('click', function(e) {
+             if (e.target.tagName === 'A' && e.target.href.startsWith('#')) {
+                 e.preventDefault();
+                 const targetId = e.target.href.split('#')[1];
+                 const targetElement = document.getElementById(targetId);
+                 if (targetElement) {
+                     targetElement.scrollIntoView({ behavior: 'smooth' });
+                 }
+             }
+         });
+    </script>
+</body>
+</html>
