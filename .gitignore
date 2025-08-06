@@ -1,5 +1,7 @@
 # Generated HTML
 .business-rules-documentation.html
+documentation.html
+*.html
 
 # Environment variables
 .env
