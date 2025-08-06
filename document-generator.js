@@ -1021,7 +1021,6 @@ async function generateDocumentationWithConfig(config) {
       if (config.includeComments && card.badges && card.badges.comments > 0) {
         try {
           card.comments = await trelloApi.fetchCardComments(card.id);
-          console.log(`  💬 Found ${card.comments.length} comments`);
         } catch (error) {
           console.log(`  ⚠️  Could not fetch comments: ${error.message}`);
           card.comments = [];
