@@ -11,6 +11,7 @@ const DEFAULT_CONFIG = {
   
   // Display options
   includeComments: true,
+  excludeEmptyCards: true,
   showAttachments: true,
   
   // Print layout options
@@ -92,6 +93,7 @@ function mergeConfig(baseConfig, updates) {
 const PRESETS = {
   simple: {
     includeComments: false,
+    excludeEmptyCards: false,
     showAttachments: false,
     enablePrintPagination: false,
     oneCardPerPrintPage: false,
@@ -100,6 +102,7 @@ const PRESETS = {
   
   detailed: {
     includeComments: true,
+    excludeEmptyCards: true,
     showAttachments: true,
     enablePrintPagination: true,
     cardsPerPrintPage: 2,
@@ -109,6 +112,7 @@ const PRESETS = {
   
   printReady: {
     includeComments: true,
+    excludeEmptyCards: true,
     showAttachments: true,
     enablePrintPagination: true,
     cardsPerPrintPage: 3,
@@ -119,6 +123,7 @@ const PRESETS = {
   
   onePerPage: {
     includeComments: true,
+    excludeEmptyCards: true,
     showAttachments: true,
     oneCardPerPrintPage: true,
     showCardNumbers: true,

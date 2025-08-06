@@ -136,6 +136,33 @@ function generateLogoHTML(config) {
   `;
 }
 
+// Check if a card has meaningful content
+function hasContent(card) {
+  // Check if description exists and has meaningful text (after removing whitespace/newlines)
+  const hasDescription = card.desc && card.desc.trim().length > 0;
+  
+  // Check if card has attachments
+  const hasAttachments = card.attachments && card.attachments.length > 0;
+  
+  // Check if card has comments
+  const hasComments = card.comments && card.comments.length > 0;
+  
+  // Check if card has labels (excluding just the title)
+  const hasLabels = card.labels && card.labels.length > 0;
+  
+  // Card has content if it has any of: description, attachments, comments, or labels
+  return hasDescription || hasAttachments || hasComments || hasLabels;
+}
+
+// Filter out empty cards if requested
+function filterCards(cards, config) {
+  if (!config.excludeEmptyCards) {
+    return cards; // Return all cards if not filtering
+  }
+  
+  return cards.filter(card => hasContent(card));
+}
+
 // Get color for Trello labels
 function getLabelColor(color) {
   const colors = {
@@ -150,9 +177,12 @@ function getLabelColor(color) {
 function generateConfigurableHTML(cards, config) {
   const timestamp = new Date().toLocaleString();
 
+  // Filter out empty cards if requested
+  const filteredCards = filterCards(cards, config);
+
   // Group cards by their source list
   const cardsByList = {};
-  cards.forEach(card => {
+  filteredCards.forEach(card => {
     const listId = card.listId || 'unknown';
     if (!cardsByList[listId]) {
       cardsByList[listId] = [];
@@ -193,8 +223,7 @@ function generateConfigurableHTML(cards, config) {
         <div class="card-item${pageBreakClass}" data-search="${card.name.toLowerCase()} ${card.desc?.toLowerCase() || ''}">
           <h2 class="card-header">
             <span class="card-number">${cardNumber}</span>
-            <span class="card-title">${card.name}</span>
-            <a href="${card.url}" target="_blank" title="View in Trello" class="trello-link">🔗</a>
+            <a href="${card.url}" target="_blank" title="View in Trello" class="card-title">${card.name}</a>
           </h2>
           <div class="card-meta">
             ${card.labels.map(label => `<span class="label" style="background-color: ${getLabelColor(label.color)}">${label.name}</span>`).join(' ')}
@@ -203,7 +232,7 @@ function generateConfigurableHTML(cards, config) {
           <div class="card-content">
             ${description}
           </div>
-          ${card.hasComments && config.includeComments ? commentsHTML : ''}
+          ${commentsHTML}
         </div>
       `;
     });
@@ -219,6 +248,9 @@ function generateConfigurableHTML(cards, config) {
     return (cardIndex + 1) % config.cardsPerPrintPage === 0 && cardIndex < totalCardsInSection - 1;
   }
 
+  // Count total cards processed (after filtering)
+  const totalCards = filteredCards.length;
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -233,11 +265,11 @@ function generateConfigurableHTML(cards, config) {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #f5f6fa;
+            background-color: #f8f9fa;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgb(51,141,37) 0%, rgb(147,147,145) 100%);
             color: white;
             padding: 2rem 0;
             text-align: center;
@@ -246,17 +278,35 @@ function generateConfigurableHTML(cards, config) {
 
         .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
         .header p { font-size: 1.1rem; opacity: 0.9; }
+        
+        .header-meta {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .board-name, .generation-date {
+            margin: 0;
+        }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
 
         .logo-container {
+            display: inline-block;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
             text-align: center;
-            padding: 1rem 0;
         }
 
         .logo {
-            max-width: 100%;
-            height: auto;
+            max-height: 80px;
+            width: auto;
+            display: block;
         }
 
         .search-section {
@@ -277,7 +327,7 @@ function generateConfigurableHTML(cards, config) {
             transition: border-color 0.3s;
         }
 
-        .search-box:focus { border-color: #667eea; }
+        .search-box:focus { border-color: rgb(51,141,37); }
 
         .stats {
             display: flex;
@@ -304,6 +354,16 @@ function generateConfigurableHTML(cards, config) {
                 box-shadow: none;
                 border-bottom: 2pt solid #333;
                 margin-bottom: 1rem;
+            }
+            
+            .header-meta {
+                color: black !important;
+                font-size: 10pt;
+                margin-top: 0.5rem;
+            }
+            
+            .board-name, .generation-date {
+                color: black !important;
             }
 
             .search-section {
@@ -343,8 +403,9 @@ function generateConfigurableHTML(cards, config) {
                 color: black !important;
             }
 
-            .trello-link {
-                display: none;
+            .card-title {
+                text-decoration: none !important;
+                color: black !important;
             }
 
             .card-meta {
@@ -430,7 +491,7 @@ function generateConfigurableHTML(cards, config) {
 
         .card-number {
             font-weight: 600;
-            color: #667eea;
+            color: rgb(51,141,37);
         }
 
         /* Hierarchical Document Layout */
@@ -450,14 +511,14 @@ function generateConfigurableHTML(cards, config) {
             color: #2d3748;
             margin: 2rem 0 1.5rem 0;
             padding-bottom: 0.5rem;
-            border-bottom: 3px solid #667eea;
+            border-bottom: 3px solid rgb(51,141,37);
             display: flex;
             align-items: baseline;
             gap: 0.5rem;
         }
 
         .section-number {
-            color: #667eea;
+            color: rgb(51,141,37);
             font-weight: 800;
         }
 
@@ -468,7 +529,6 @@ function generateConfigurableHTML(cards, config) {
         .card-item {
             margin-bottom: 2rem;
             padding-left: 1rem;
-            border-left: 2px solid #e2e8f0;
         }
 
         .card-header {
@@ -482,24 +542,20 @@ function generateConfigurableHTML(cards, config) {
         }
 
         .card-number {
-            color: #667eea;
+            color: rgb(51,141,37);
             font-weight: 700;
             min-width: 4rem;
         }
 
         .card-title {
             flex: 1;
-        }
-
-        .trello-link {
             text-decoration: none;
-            font-size: 0.9rem;
-            opacity: 0.7;
-            transition: opacity 0.2s;
+            color: #2d3748;
+            transition: color 0.2s;
         }
 
-        .trello-link:hover {
-            opacity: 1;
+        .card-title:hover {
+            color: rgb(51,141,37);
         }
 
         .card-meta {
@@ -565,7 +621,7 @@ function generateConfigurableHTML(cards, config) {
         .code-block {
             background: #f7fafc;
             border: 1px solid #e2e8f0;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid rgb(51,141,37);
             padding: 1rem;
             border-radius: 6px;
             overflow-x: auto;
@@ -669,7 +725,7 @@ function generateConfigurableHTML(cards, config) {
             background: #f8f9fa;
             border-radius: 8px;
             padding: 1rem;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid rgb(51,141,37);
         }
 
         .comment-header {
@@ -754,21 +810,16 @@ function generateConfigurableHTML(cards, config) {
             ${config.logo.position === 'header' ? generateLogoHTML(config) : ''}
             <h1>${config.title}</h1>
             ${config.subtitle ? `<p>${config.subtitle}</p>` : ''}
+            <div class="header-meta">
+                <p class="board-name">Board: ${config.boardName}</p>
+                <p class="generation-date">Generated: ${timestamp}</p>
+            </div>
         </div>
     </div>
 
     <div class="container">
         ${config.coverLetter.enabled && config.coverLetter.showOnSeparatePage ? generateCoverLetterHTML(config) : ''}
 
-        ${!config.separatePages ? `
-        <div class="search-section">
-            <input type="text" class="search-box" placeholder="Search..." id="searchBox">
-            <div class="stats">
-                <span id="resultCount">${cards.length} cards found</span>
-                <span>Generated: ${timestamp}</span>
-            </div>
-        </div>
-        ` : ''}
 
         <div id="documentContainer" class="hierarchical-document">${sectionsHTML}</div>
 
@@ -788,13 +839,15 @@ function generateConfigurableHTML(cards, config) {
 ${generateHierarchicalSearchScript()}
 
         // Print optimization
-        window.addEventListener('beforeprint', function() {
-            // Ensure all cards are visible for printing
-            const allCards = document.querySelectorAll('.rule-card');
-            allCards.forEach(card => {
-                card.style.display = 'block';
+        if (window && window.addEventListener) {
+            window.addEventListener('beforeprint', function() {
+                // Ensure all cards are visible for printing
+                const allCards = document.querySelectorAll('.rule-card');
+                allCards.forEach(card => {
+                    card.style.display = 'block';
+                });
             });
-        });
+        }
     </script>
 </body>
 </html>`;
@@ -822,13 +875,15 @@ function generateSeparatePagesScript(totalCards) {
     }
 
     // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowRight' && currentCard < totalCards) {
-            showCard(currentCard + 1);
-        } else if (e.key === 'ArrowLeft' && currentCard > 1) {
-            showCard(currentCard - 1);
-        }
-    });
+    if (document && document.addEventListener) {
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' && currentCard < totalCards) {
+                showCard(currentCard + 1);
+            } else if (e.key === 'ArrowLeft' && currentCard > 1) {
+                showCard(currentCard - 1);
+            }
+        });
+    }
   `;
 }
 
@@ -842,7 +897,7 @@ function generateHierarchicalSearchScript() {
     const allCards = document.querySelectorAll('.card-item');
     const allSections = document.querySelectorAll('.document-section');
 
-    if (searchBox) {
+    if (searchBox && searchBox.addEventListener) {
         searchBox.addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
             let visibleCount = 0;
@@ -980,5 +1035,7 @@ module.exports = {
   processCardAttachments,
   formatDescription,
   generateCommentsHTML,
-  generateConfigurableHTML
+  generateConfigurableHTML,
+  hasContent,
+  filterCards
 };

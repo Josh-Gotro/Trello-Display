@@ -135,7 +135,7 @@ async function fetchListsByBoardId(boardId) {
 // Fetch all cards from specific lists
 async function fetchCardsFromLists(listIds, includeAttachments = true) {
   const allCards = [];
-  
+
   for (const listId of listIds) {
     const options = includeAttachments ? { attachments: 'true' } : {};
     const cards = await fetchListCards(listId, options);
@@ -145,7 +145,7 @@ async function fetchCardsFromLists(listIds, includeAttachments = true) {
     }
     allCards.push(...cards);
   }
-  
+
   return allCards;
 }
 

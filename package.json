@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "main": "interactive-generator.js",
   "scripts": {
-    "start": "node interactive-generator.js",
-    "legacy": "node crtl-alt-delegate.js",
+    "start": "node web-generator.js && node api-server.js",
+    "dev": "node web-generator.js && node api-server.js",
+    "web": "node web-generator.js",
+    "server": "node api-server.js",
+    "cli": "node interactive-generator.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

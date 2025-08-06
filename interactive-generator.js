@@ -111,31 +111,11 @@ async function runInteractiveGenerator() {
     // Step 3: Display Options
     console.log('\\n⚙️  Step 3: Display Options');
 
-    const includeComments = (await question('Include comments? (y/N): ')).toLowerCase().startsWith('y');
-    const showAttachments = (await question('Show attachments? (Y/n): ')).toLowerCase() !== 'n';
+    const includeComments = (await question('Include comments? (Y/n): ')).toLowerCase() !== 'n';
+    const excludeEmptyCards = (await question('Exclude empty cards? (Y/n): ')).toLowerCase() !== 'n';
 
-    // Print layout options
-    console.log('\\n📄 Print Layout Options:');
-    const oneCardPerPrintPage = (await question('One card per printed page? (y/N): ')).toLowerCase().startsWith('y');
-
-    let cardsPerPrintPage = 3;
-    let enablePrintPagination = false;
-
-    if (!oneCardPerPrintPage) {
-      enablePrintPagination = (await question('Enable print pagination (multiple cards per page)? (y/N): ')).toLowerCase().startsWith('y');
-
-      if (enablePrintPagination) {
-        const paginationInput = await question('Cards per printed page (default 3): ');
-        if (paginationInput.trim()) {
-          cardsPerPrintPage = parseInt(paginationInput) || 3;
-        }
-        console.log(`📄 Print layout: ${cardsPerPrintPage} cards per page with automatic page breaks`);
-      } else {
-        console.log('📄 Print layout: All cards in continuous scroll (no page breaks)');
-      }
-    } else {
-      console.log('📄 Print layout: Each card on its own printed page');
-    }
+    console.log(`✅ Comments: ${includeComments ? 'Included' : 'Excluded'}`);
+    console.log(`✅ Empty cards: ${excludeEmptyCards ? 'Excluded' : 'Included'}`)
 
     // Step 4: Title and Output
     console.log('\\n📄 Step 4: Title and Output');
@@ -150,10 +130,11 @@ async function runInteractiveGenerator() {
       boardName: selectedBoard.name,
       selectedLists: selectedLists.map(list => ({ id: list.id, name: list.name })),
       includeComments,
-      showAttachments,
-      enablePrintPagination,
-      cardsPerPrintPage,
-      oneCardPerPrintPage,
+      excludeEmptyCards,
+      showAttachments: true,
+      enablePrintPagination: false,
+      cardsPerPrintPage: 3,
+      oneCardPerPrintPage: false,
       title,
       subtitle,
       outputFileName
