@@ -140,27 +140,44 @@ function generateLogoHTML(config) {
 function hasContent(card) {
   // Check if description exists and has meaningful text (after removing whitespace/newlines)
   const hasDescription = card.desc && card.desc.trim().length > 0;
-  
+
   // Check if card has attachments
   const hasAttachments = card.attachments && card.attachments.length > 0;
-  
+
   // Check if card has comments
   const hasComments = card.comments && card.comments.length > 0;
-  
+
   // Check if card has labels (excluding just the title)
   const hasLabels = card.labels && card.labels.length > 0;
-  
+
+  const result = hasDescription || hasAttachments || hasComments || hasLabels;
+
+  // Debug logging for empty card detection
+  // if (!result) {
+  //   console.log(`🔍 Empty card detected: "${card.name}" (desc: ${!!hasDescription}, attachments: ${!!hasAttachments}, comments: ${!!hasComments}, labels: ${!!hasLabels})`);
+  // }
+
   // Card has content if it has any of: description, attachments, comments, or labels
-  return hasDescription || hasAttachments || hasComments || hasLabels;
+  return result;
 }
 
 // Filter out empty cards if requested
 function filterCards(cards, config) {
+
+
   if (!config.excludeEmptyCards) {
+    console.log(
+      `🛡️ Not filtering empty cards - returning all ${cards.length} cards`
+    );
     return cards; // Return all cards if not filtering
   }
-  
-  return cards.filter(card => hasContent(card));
+
+  const filteredCards = cards.filter(card => hasContent(card));
+  console.log(
+    `🪓 Remove ${cards.length} empty cards, ${filteredCards.length} cards remaining`
+  );
+
+  return filteredCards;
 }
 
 // Get color for Trello labels
@@ -278,7 +295,7 @@ function generateConfigurableHTML(cards, config) {
 
         .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
         .header p { font-size: 1.1rem; opacity: 0.9; }
-        
+
         .header-meta {
             margin-top: 1rem;
             display: flex;
@@ -287,7 +304,7 @@ function generateConfigurableHTML(cards, config) {
             font-size: 0.9rem;
             opacity: 0.8;
         }
-        
+
         .board-name, .generation-date {
             margin: 0;
         }
@@ -355,13 +372,13 @@ function generateConfigurableHTML(cards, config) {
                 border-bottom: 2pt solid #333;
                 margin-bottom: 1rem;
             }
-            
+
             .header-meta {
                 color: black !important;
                 font-size: 10pt;
                 margin-top: 0.5rem;
             }
-            
+
             .board-name, .generation-date {
                 color: black !important;
             }
@@ -978,21 +995,26 @@ function generatePaginationScript(itemsPerPage) {
 // Main function to generate documentation with configuration
 async function generateDocumentationWithConfig(config) {
   try {
-    console.log('🔄 Fetching cards from selected lists...');
+    console.log('🐩​ Fetching cards from selected lists...');
 
     // Fetch cards from selected lists
-    const listIds = config.selectedLists.map(list => list.id);
-    const cards = await trelloApi.fetchCardsFromLists(listIds, config.showAttachments);
+    const listIds = config.selectedLists.map((list) => list.id);
+    const cards = await trelloApi.fetchCardsFromLists(
+      listIds,
+      config.showAttachments
+    );
 
-    console.log(`📝 Processing ${cards.length} cards...`);
+    console.log(`🎇​ Processing ${cards.length} cards...`);
 
     // Process each card
     for (let i = 0; i < cards.length; i++) {
       const card = cards[i];
-      console.log(`Processing (${i + 1}/${cards.length}): ${card.name}`);
 
       if (card.attachments && card.attachments.length > 0) {
-        card.attachments = await processCardAttachments(card.attachments, card.name);
+        card.attachments = await processCardAttachments(
+          card.attachments,
+          card.name
+        );
       }
 
       // Fetch comments if needed and the card has any
@@ -1009,23 +1031,25 @@ async function generateDocumentationWithConfig(config) {
       }
     }
 
-    console.log('🎨 Generating HTML documentation...');
+    console.log('🧙​ Generating HTML documentation...');
     const html = generateConfigurableHTML(cards, config);
 
     const outputPath = path.join(__dirname, config.outputFileName);
     fs.writeFileSync(outputPath, html);
 
-    console.log(`✅ Documentation generated successfully!`);
-    console.log(`📄 File saved: ${outputPath}`);
-    console.log(`📊 Total cards: ${cards.length}`);
+    console.log(`🧞 Documentation generated successfully!`);
+    console.log(`🤺​ Total cards: ${cards.length}`);
     if (config.includeComments) {
-      const totalComments = cards.reduce((sum, card) => sum + (card.comments?.length || 0), 0);
+      const totalComments = cards.reduce(
+        (sum, card) => sum + (card.comments?.length || 0),
+        0
+      );
       console.log(`💬 Total comments: ${totalComments}`);
     }
-    console.log(`🌐 Open the file in your browser to view the documentation`);
-
+    console.log(`🦸 File saved: ${outputPath}`);
+    console.log(`🏄​ Open the file in your browser to view the documentation`);
   } catch (error) {
-    console.error('❌ Error generating documentation:', error);
+    console.error('❌🧛‍♂️❌ Error generating documentation:', error);
     throw error;
   }
 }

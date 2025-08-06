@@ -37,7 +37,7 @@ const server = http.createServer(async (req, res) => {
       const filePath = pathname.substring(1); // Remove leading slash
       const ext = path.extname(filePath).toLowerCase();
       let contentType = 'application/octet-stream';
-      
+
       switch(ext) {
         case '.jpg':
         case '.jpeg':
@@ -56,7 +56,7 @@ const server = http.createServer(async (req, res) => {
           contentType = 'text/javascript';
           break;
       }
-      
+
       await serveFile(res, filePath, contentType);
     } else {
       res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -79,7 +79,7 @@ async function handleGenerateRequest(req, res) {
   req.on('end', async () => {
     try {
       let config = JSON.parse(body);
-      
+
       // Validate configuration
       if (!config.boardId || !config.selectedLists || config.selectedLists.length === 0) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -103,7 +103,7 @@ async function handleGenerateRequest(req, res) {
       // Process each card
       for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
-        
+
         if (card.attachments && card.attachments.length > 0) {
           card.attachments = await processCardAttachments(card.attachments, card.name);
         }
@@ -125,8 +125,8 @@ async function handleGenerateRequest(req, res) {
       const html = generateConfigurableHTML(cards, config);
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ 
-        success: true, 
+      res.end(JSON.stringify({
+        success: true,
         html: html,
         cardCount: cards.length
       }));
@@ -143,7 +143,7 @@ async function handleBoardsRequest(req, res) {
   try {
     trelloApi.validateConfig();
     const boards = await trelloApi.fetchUserBoards();
-    
+
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true, boards: boards }));
   } catch (error) {
@@ -163,7 +163,7 @@ async function handleListsRequest(req, res, query) {
     }
 
     const lists = await trelloApi.fetchListsByBoardId(boardId);
-    
+
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true, lists: lists }));
   } catch (error) {
@@ -177,7 +177,7 @@ async function serveFile(res, filename, contentType) {
   try {
     const filePath = path.join(__dirname, filename);
     const content = fs.readFileSync(filePath);
-    
+
     res.writeHead(200, { 'Content-Type': contentType });
     res.end(content);
   } catch (error) {
@@ -189,8 +189,8 @@ async function serveFile(res, filename, contentType) {
 // Start server
 function startServer() {
   server.listen(PORT, () => {
-    console.log(`🚀 API Server running at http://localhost:${PORT}`);
-    console.log(`📄 Open http://localhost:${PORT} to use the interactive interface`);
+    console.log(`💃​ API Server running at http://localhost:${PORT}`);
+    console.log(`👨‍🎤​ Open http://localhost:${PORT} to use the interactive interface`);
   });
 }
 

@@ -7,20 +7,20 @@ const { formatDescription, generateCommentsHTML, getLabelColor } = require('./do
 // Generate the initial web interface
 async function generateWebInterface() {
   try {
-    console.log('🔄 Generating interactive web interface...');
+    console.log('🧙​ Generating interactive web interface...');
 
-    console.log('🎨 Generating HTML interface...');
+    console.log('🦹​ Generating HTML interface...');
     const html = generateInteractiveHTML();
 
     const outputPath = path.join(__dirname, 'interactive-documentation.html');
     fs.writeFileSync(outputPath, html);
 
-    console.log(`✅ Interactive web interface generated!`);
-    console.log(`📄 File: ${outputPath}`);
-    console.log(`🌐 Start the server with 'npm run server' and open http://localhost:3000`);
+    console.log(`🤸​ Interactive web interface generated!`);
+    console.log(`👩‍💻​ File: ${outputPath}`);
+    console.log(`🧞 ​Starting the server ...`);
 
   } catch (error) {
-    console.error('❌ Error generating web interface:', error);
+    console.error('❌🧛‍♂️❌ Error generating web interface:', error);
     throw error;
   }
 }
@@ -138,14 +138,14 @@ function generateInteractiveHTML() {
             flex-direction: column;
             gap: 1.5rem;
         }
-        
+
         .title-inputs {
             display: flex;
             align-items: center;
             gap: 1.5rem;
             flex-wrap: wrap;
         }
-        
+
         .checkbox-options {
             display: flex;
             align-items: center;
@@ -236,6 +236,18 @@ function generateInteractiveHTML() {
             font-weight: normal;
             cursor: pointer;
             flex: 1;
+        }
+
+        .select-all-item {
+            border-bottom: 1px solid #d1d5db;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.75rem;
+            background: #f9fafb;
+        }
+
+        .select-all-item label {
+            font-weight: 600;
+            color: #374151;
         }
 
         .options-grid {
@@ -641,6 +653,13 @@ function generateInteractiveHTML() {
                 const result = await response.json();
 
                 if (result.success && result.lists.length > 0) {
+                    const selectAllHTML = \`
+                        <div class="checkbox-item select-all-item">
+                            <input type="checkbox" id="selectAllLists">
+                            <label for="selectAllLists"><strong>Select All Lists</strong></label>
+                        </div>
+                    \`;
+
                     const listsHTML = result.lists.map(list =>
                         \`<div class="checkbox-item">
                             <input type="checkbox" id="list_\${list.id}" name="selectedList" value="\${list.id}" data-name="\${list.name}">
@@ -650,9 +669,33 @@ function generateInteractiveHTML() {
 
                     listSelectionDiv.innerHTML = \`
                         <div class="checkbox-group">
+                            \${selectAllHTML}
                             \${listsHTML}
                         </div>
                     \`;
+
+                    // Add Select All functionality
+                    const selectAllCheckbox = document.getElementById('selectAllLists');
+                    const listCheckboxes = document.querySelectorAll('input[name="selectedList"]');
+
+                    selectAllCheckbox.addEventListener('change', function() {
+                        listCheckboxes.forEach(checkbox => {
+                            checkbox.checked = this.checked;
+                        });
+                        updateGenerateButton();
+                    });
+
+                    // Update Select All when individual checkboxes change
+                    listCheckboxes.forEach(checkbox => {
+                        checkbox.addEventListener('change', function() {
+                            const allChecked = Array.from(listCheckboxes).every(cb => cb.checked);
+                            const anyChecked = Array.from(listCheckboxes).some(cb => cb.checked);
+
+                            selectAllCheckbox.checked = allChecked;
+                            selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+                            updateGenerateButton();
+                        });
+                    });
                 } else {
                     listSelectionDiv.innerHTML = '<p style="color: #e53e3e;">No lists found in this board</p>';
                 }
@@ -715,7 +758,7 @@ function generateInteractiveHTML() {
                 }, 3000);
 
             } catch (error) {
-                statusContent.innerHTML = \`<div class="error">❌ Error: \${error.message}</div>\`;
+                statusContent.innerHTML = \`<div class="error">❌🧛‍♂️❌ Error: \${error.message}</div>\`;
             } finally {
                 // Restore button state
                 generateBtn.textContent = originalText;
