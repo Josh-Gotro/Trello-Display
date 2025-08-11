@@ -431,6 +431,33 @@ function generateConfigurableHTML(cards, config) {
             margin: 0.5rem 0;
         }
 
+        /* Document actions */
+        .document-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f8f9fa;
+            border-color: rgb(51,141,37);
+        }
+
         /* Print-specific styles */
         @media print {
             body {
@@ -461,6 +488,10 @@ function generateConfigurableHTML(cards, config) {
 
             .search-section {
                 display: none;
+            }
+
+            .document-actions {
+                display: none !important;
             }
 
             .cover-page {
@@ -935,6 +966,11 @@ function generateConfigurableHTML(cards, config) {
     <div class="container">
         ${config.coverLetter.enabled && config.coverLetter.showOnSeparatePage ? generateCoverLetterHTML(config) : ''}
 
+        <div class="document-actions">
+            <button class="action-btn" onclick="window.print()">🖨️ Print</button>
+            <button class="action-btn" onclick="downloadHTML()">💾 Download</button>
+        </div>
+
         <div id="documentContainer" class="hierarchical-document">${sectionsHTML}</div>
 
         <div class="no-results" id="noResults">
@@ -951,6 +987,33 @@ function generateConfigurableHTML(cards, config) {
 
     <script>
 ${generateHierarchicalSearchScript()}
+
+        // Download HTML function
+        function downloadHTML() {
+            // Create a complete HTML document
+            const fullHTML = \`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>\${document.title}</title>
+</head>
+<body>
+    \${document.documentElement.outerHTML}
+</body>
+</html>\`;
+
+            // Download the file
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '${config.outputFileName}';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
 
         // Print optimization
         if (window && window.addEventListener) {
