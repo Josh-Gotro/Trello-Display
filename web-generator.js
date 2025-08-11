@@ -59,6 +59,10 @@ function generateInteractiveHTML() {
 
         .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
 
+        .header h1, .header p, .header .header-meta {
+            display: none;
+        }
+
         .logo-container {
             display: inline-block;
             background: white;
@@ -375,10 +379,22 @@ function generateInteractiveHTML() {
             align-items: center;
         }
 
+        .title-section {
+            display: flex;
+            flex-direction: column;
+        }
+
         .document-title {
             font-size: 1.2rem;
             font-weight: 600;
             color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        #document-subtitle {
+            font-size: 1rem;
+            color: #666;
+            font-style: italic;
         }
 
         .document-actions {
@@ -439,8 +455,124 @@ function generateInteractiveHTML() {
         }
 
         @media print {
-            .config-section, .generate-section, .search-section, .status-section, .document-header {
+            .config-section, .generate-section, .search-section, .status-section {
                 display: none !important;
+            }
+
+            .document-header {
+                display: none !important;
+            }
+
+            .document-actions {
+                display: none !important;
+            }
+
+            .header {
+                background: white !important;
+                color: black !important;
+                box-shadow: none;
+                border-bottom: none !important;
+                margin-bottom: 0;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                page-break-after: always;
+                text-align: center;
+            }
+
+            .header .container {
+                max-width: 600px;
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .header .logo-container {
+                display: block !important;
+                margin-bottom: 2rem;
+                text-align: center;
+                background: transparent !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                order: 1;
+            }
+
+            .header .logo {
+                max-width: 200px !important;
+                max-height: 150px !important;
+                width: auto !important;
+                height: auto !important;
+                object-fit: contain;
+                display: block;
+                margin: 0 auto;
+                background: white;
+                padding: 1rem;
+                border-radius: 8px;
+            }
+
+            .header h1 {
+                display: none !important;
+            }
+
+            .header p {
+                display: none !important;
+            }
+
+            .print-title-section {
+                display: block !important;
+                text-align: center;
+                order: 2;
+                margin: 1rem 0 2rem 0;
+            }
+
+            .print-title {
+                font-size: 1.5rem !important;
+                font-weight: bold !important;
+                color: black !important;
+                margin-bottom: 0.5rem;
+            }
+
+            .print-subtitle {
+                font-size: 1.2rem !important;
+                font-weight: normal !important;
+                color: black !important;
+                font-style: italic;
+                margin-bottom: 0;
+            }
+
+            .header .header-meta {
+                display: block !important;
+                margin-top: 2rem;
+                font-size: 0.9rem !important;
+                color: black !important;
+                opacity: 0.8;
+                order: 3;
+            }
+
+            .header .header-meta p {
+                display: block !important;
+                margin: 0.25rem 0;
+                font-size: 0.9rem !important;
+                color: black !important;
+            }
+
+            .document-title {
+                display: block !important;
+                font-size: 1.5rem !important;
+                font-weight: bold !important;
+                color: black !important;
+                margin: 1rem 0 0.5rem 0;
+                text-align: center;
+            }
+
+            #document-subtitle {
+                display: block !important;
+                font-size: 1.2rem !important;
+                font-weight: normal !important;
+                color: black !important;
+                margin: 0 0 2rem 0;
+                text-align: center;
             }
 
             .document-display {
@@ -460,6 +592,15 @@ function generateInteractiveHTML() {
         <div class="container">
             <div class="logo-container">
                 <img src="public/assets/wostmann_logo.jpg" alt="Wostmann Logo" class="logo">
+            </div>
+            <h1 id="headerTitle">Documentation</h1>
+            <div id="printTitleSection" class="print-title-section" style="display: none;">
+                <div id="printTitle" class="print-title">Documentation</div>
+                <div id="printSubtitle" class="print-subtitle" style="display: none;"></div>
+            </div>
+            <div class="header-meta">
+                <p id="headerBoard" class="board-name">Board: </p>
+                <p id="headerDate" class="generation-date">Generated: </p>
             </div>
         </div>
     </div>
@@ -550,7 +691,10 @@ function generateInteractiveHTML() {
 
         <div class="document-display" id="documentDisplay">
             <div class="document-header">
-                <div class="document-title" id="documentTitle">Generated Documentation</div>
+                <div class="title-section">
+                    <div class="document-title" id="documentTitle">Generated Documentation</div>
+                    <div id="document-subtitle" style="display: none;">Generated Documentation</div>
+                </div>
                 <div class="document-actions">
                     <button class="action-btn" onclick="window.print()">🖨️ Print</button>
                     <button class="action-btn" onclick="downloadHTML()">💾 Download</button>
@@ -788,7 +932,14 @@ function generateInteractiveHTML() {
                 cardsPerPrintPage: 3,
                 title: document.getElementById('docTitle').value || \`\${selectedBoard.name} Documentation\`,
                 subtitle: document.getElementById('docSubtitle').value,
-                outputFileName: 'documentation.html'
+                outputFileName: 'documentation.html',
+                logo: {
+                    enabled: true,
+                    url: 'public/assets/wostmann_logo.jpg',
+                    width: 300,
+                    position: 'header'
+                },
+                isCliGenerated: false
             };
         }
 
@@ -850,6 +1001,33 @@ function generateInteractiveHTML() {
             documentTitle.textContent = config.title;
             documentContent.innerHTML = html;
             documentDisplay.className = 'document-display show';
+
+            // Update header elements for printing
+            document.getElementById('headerTitle').textContent = config.title;
+
+            // Update print title elements for cover page
+            document.getElementById('printTitle').textContent = config.title;
+            const printSubtitle = document.getElementById('printSubtitle');
+            if (config.subtitle && config.subtitle.trim()) {
+                printSubtitle.textContent = config.subtitle;
+                printSubtitle.style.display = 'block';
+            } else {
+                printSubtitle.style.display = 'none';
+            }
+
+            // Update document subtitle (near print/download buttons)
+            const documentSubtitle = document.getElementById('document-subtitle');
+            if (documentSubtitle) {
+                if (config.subtitle && config.subtitle.trim()) {
+                    documentSubtitle.textContent = config.subtitle;
+                    documentSubtitle.style.display = 'block';
+                } else {
+                    documentSubtitle.style.display = 'none';
+                }
+            }
+
+            document.getElementById('headerBoard').textContent = 'Board: ' + config.boardName;
+            document.getElementById('headerDate').textContent = 'Generated: ' + new Date().toLocaleString();
 
             // Show search section when document is displayed
             if (searchSection) {

@@ -145,7 +145,8 @@ async function runInteractiveGenerator() {
         url: 'public/assets/wostmann_logo.jpg',
         width: 200,
         position: 'cover'
-      }
+      },
+      isCliGenerated: true
     });
 
     // Validate configuration

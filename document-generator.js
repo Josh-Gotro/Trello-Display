@@ -152,6 +152,12 @@ function generateCoverPageHTML(config, timestamp) {
           <p class="cover-board">Board: ${config.boardName}</p>
           <p class="cover-date">Generated: ${timestamp}</p>
         </div>
+        ${config.isCliGenerated ? `
+        <div class="cover-actions">
+          <button class="action-btn" onclick="window.print()">🖨️ Print</button>
+          <button class="action-btn" onclick="downloadHTML()">💾 Download</button>
+        </div>
+        ` : ''}
       </div>
     </div>
   `;
@@ -431,6 +437,13 @@ function generateConfigurableHTML(cards, config) {
             margin: 0.5rem 0;
         }
 
+        .cover-actions {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
         /* Document actions */
         .document-actions {
             display: flex;
@@ -472,14 +485,65 @@ function generateConfigurableHTML(cards, config) {
                 background: white !important;
                 color: black !important;
                 box-shadow: none;
-                border-bottom: 2pt solid #333;
+                border-bottom: none !important;
+                margin-bottom: 0;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                page-break-after: always;
+                text-align: center;
+            }
+
+            .header .container {
+                max-width: 600px;
+                padding: 2rem;
+            }
+
+            .header h1 {
+                font-size: 2.5rem !important;
                 margin-bottom: 1rem;
+                font-weight: bold;
+                color: black !important;
+            }
+
+            .header p {
+                font-size: 1.5rem !important;
+                margin-bottom: 2rem;
+                opacity: 1;
+                font-weight: normal;
+                color: black !important;
+            }
+
+            .logo-container {
+                margin-bottom: 2rem;
+            }
+
+            .logo-container img {
+                max-width: 200px !important;
+                max-height: 150px !important;
+                width: auto !important;
+                height: auto !important;
+                background: white;
+                padding: 1rem;
+                border-radius: 8px;
+                box-shadow: none !important;
+                object-fit: contain;
+                display: block;
+                margin: 0 auto;
             }
 
             .header-meta {
                 color: black !important;
-                font-size: 10pt;
-                margin-top: 0.5rem;
+                font-size: 0.9rem !important;
+                margin-top: 2rem;
+                opacity: 0.8;
+                text-align: center;
+            }
+
+            .header-meta p {
+                margin: 0.25rem 0;
+                font-size: 0.9rem !important;
             }
 
             .board-name, .generation-date {
@@ -510,6 +574,10 @@ function generateConfigurableHTML(cards, config) {
 
             .cover-meta {
                 color: black !important;
+            }
+
+            .cover-actions {
+                display: none !important;
             }
 
             .document-section {
@@ -949,7 +1017,7 @@ function generateConfigurableHTML(cards, config) {
 <body>
     ${generateCoverPageHTML(config, timestamp)}
     
-    ${config.logo.position !== 'cover' ? `
+    ${config.logo.position !== 'cover' && config.isCliGenerated ? `
     <div class="header">
         <div class="container">
             ${config.logo.position === 'header' ? generateLogoHTML(config) : ''}
@@ -965,11 +1033,6 @@ function generateConfigurableHTML(cards, config) {
 
     <div class="container">
         ${config.coverLetter.enabled && config.coverLetter.showOnSeparatePage ? generateCoverLetterHTML(config) : ''}
-
-        <div class="document-actions">
-            <button class="action-btn" onclick="window.print()">🖨️ Print</button>
-            <button class="action-btn" onclick="downloadHTML()">💾 Download</button>
-        </div>
 
         <div id="documentContainer" class="hierarchical-document">${sectionsHTML}</div>
 
