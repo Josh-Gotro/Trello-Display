@@ -36,6 +36,74 @@ function hasCredentials() {
   return !!(CONFIG.apiKey && CONFIG.token);
 }
 
+// Set new credentials (for CLI interactive setup)
+function setCredentials(apiKey, token) {
+  CONFIG.apiKey = apiKey;
+  CONFIG.token = token;
+  
+  // Also update process.env so other parts of the application can access them
+  process.env.TRELLO_API_KEY = apiKey;
+  process.env.TRELLO_TOKEN = token;
+}
+
+// Test credentials by making a simple API call
+async function testCredentials() {
+  try {
+    const url = `https://api.trello.com/1/members/me?key=${CONFIG.apiKey}&token=${CONFIG.token}`;
+    await makeRequest(url);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+// Save credentials to .env file (for persistence)
+function saveCredentialsToEnv(apiKey, token) {
+  const fs = require('fs');
+  const path = require('path');
+  
+  try {
+    const envPath = path.join(__dirname, '.env');
+    let envContent = '';
+    
+    // Read existing .env file if it exists
+    if (fs.existsSync(envPath)) {
+      envContent = fs.readFileSync(envPath, 'utf8');
+    }
+    
+    // Update or add the credentials
+    const lines = envContent.split('\n');
+    let apiKeyFound = false;
+    let tokenFound = false;
+    
+    // Update existing lines or mark what needs to be added
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith('TRELLO_API_KEY=')) {
+        lines[i] = `TRELLO_API_KEY=${apiKey}`;
+        apiKeyFound = true;
+      } else if (lines[i].startsWith('TRELLO_TOKEN=')) {
+        lines[i] = `TRELLO_TOKEN=${token}`;
+        tokenFound = true;
+      }
+    }
+    
+    // Add missing credentials
+    if (!apiKeyFound) {
+      lines.push(`TRELLO_API_KEY=${apiKey}`);
+    }
+    if (!tokenFound) {
+      lines.push(`TRELLO_TOKEN=${token}`);
+    }
+    
+    // Write back to file
+    fs.writeFileSync(envPath, lines.join('\n').trim() + '\n');
+    return true;
+  } catch (error) {
+    console.error('Error saving credentials to .env file:', error.message);
+    return false;
+  }
+}
+
 // Base function to make Trello API calls
 async function makeRequest(url) {
   const fetch = (await import('node-fetch')).default;
@@ -170,6 +238,9 @@ module.exports = {
   listIds,
   validateConfig,
   hasCredentials,
+  setCredentials,
+  testCredentials,
+  saveCredentialsToEnv,
   makeRequest,
   fetchListCards,
   fetchBusinessRules,

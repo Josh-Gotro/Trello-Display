@@ -48,14 +48,105 @@ function parseSelection(input, maxLength) {
   return [...new Set(selections)]; // Remove duplicates
 }
 
+// Handle secrets setup (API key and token)
+async function handleSecretsSetup() {
+  let credentialsValid = false;
+  let attemptCount = 0;
+  const maxAttempts = 3;
+  
+  while (!credentialsValid && attemptCount < maxAttempts) {
+    attemptCount++;
+    
+    const hasExistingCredentials = trelloApi.hasCredentials();
+    
+    if (hasExistingCredentials && attemptCount === 1) {
+      console.log('✅ Found existing API credentials.');
+      console.log('🔍 Testing credentials...');
+      
+      const credentialsWork = await trelloApi.testCredentials();
+      if (credentialsWork) {
+        const useExisting = await question('Credentials are valid! Would you like to use them? (y/n): ');
+        if (useExisting.toLowerCase() !== 'n') {
+          console.log('🔒 Your secrets are safe with me');
+          return;
+        }
+      } else {
+        console.log('❌ Existing credentials are invalid.');
+      }
+    } else if (attemptCount === 1) {
+      console.log('❌ No API credentials found.');
+    }
+    
+    if (attemptCount > 1) {
+      console.log('❌ Previous credentials were invalid. Please try again.');
+      console.log(`Attempt ${attemptCount} of ${maxAttempts}`);
+    }
+    
+    console.log('');
+    console.log('Please provide your Trello API credentials:');
+    console.log('🔗 Get your API key from: https://trello.com/app-key');
+    console.log('');
+    
+    const apiKey = await question('Enter your Trello API Key: ');
+    if (!apiKey.trim()) {
+      throw new Error('API Key is required');
+    }
+    
+    console.log('');
+    console.log('🔗 Get your token by visiting the authorization URL shown after entering your API key');
+    console.log('');
+    
+    const token = await question('Enter your Trello Token: ');
+    if (!token.trim()) {
+      throw new Error('Token is required');
+    }
+    
+    // Set the new credentials
+    trelloApi.setCredentials(apiKey.trim(), token.trim());
+    
+    // Test the credentials
+    console.log('🔍 Testing credentials...');
+    credentialsValid = await trelloApi.testCredentials();
+    
+    if (credentialsValid) {
+      console.log('✅ Credentials are valid!');
+      
+      // Ask if user wants to save credentials for persistence
+      console.log('');
+      const saveCredentials = await question('Save credentials to .env file for next time? (y/n): ');
+      
+      if (saveCredentials.toLowerCase() === 'y') {
+        const saved = trelloApi.saveCredentialsToEnv(apiKey.trim(), token.trim());
+        if (saved) {
+          console.log('✅ Credentials saved to .env file');
+        } else {
+          console.log('⚠️ Could not save credentials to .env file, but they will work for this session');
+        }
+      } else {
+        console.log('💡 Credentials will only be available for this session');
+      }
+      
+      console.log('🔒 Your secrets are safe with me');
+      console.log('');
+    } else {
+      console.log('❌ Invalid credentials. Please check your API key and token.');
+      if (attemptCount === maxAttempts) {
+        throw new Error('Maximum credential attempts exceeded. Please verify your Trello API key and token.');
+      }
+      console.log('');
+    }
+  }
+}
+
 // Main interactive configuration function
 async function runInteractiveGenerator() {
   try {
     console.log('🧜​ Welcome to the Interactive Documentation Generator!');
     console.log('');
 
-    // Validate API credentials
-    trelloApi.validateConfig();
+    // Check for secrets step
+    console.log('🔍 Checking for secrets...');
+    await handleSecretsSetup();
 
     // Step 1: Board Selection
     console.log('👩‍💻 Step 1: Select a Board');
@@ -177,6 +268,7 @@ if (require.main === module) {
 
 module.exports = {
   runInteractiveGenerator,
+  handleSecretsSetup,
   parseSelection,
   displayList
 };
