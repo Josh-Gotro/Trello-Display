@@ -165,6 +165,26 @@ function generateInteractiveHTML() {
             font-weight: 600;
         }
 
+        .board-selection-column.active {
+            border-color: rgb(51,141,37);
+            background: #f0f9ff;
+        }
+
+        .board-selection-column.active h4 {
+            color: rgb(51,141,37);
+        }
+
+        .data-source-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: rgb(51,141,37);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
         @media (max-width: 768px) {
             .board-selection-layout {
                 flex-direction: column;
@@ -827,6 +847,9 @@ function generateInteractiveHTML() {
             // Load boards from API
             await loadBoards();
 
+            // Initialize data source indicator
+            updateDataSourceIndicator('');
+
             // JSON file input handler
             const jsonFileInput = document.getElementById('jsonFileInput');
             const fileName = document.getElementById('fileName');
@@ -836,25 +859,39 @@ function generateInteractiveHTML() {
                 if (file) {
                     fileName.textContent = file.name;
                     loadJSONFile(file);
-                    // Clear board selection when JSON is loaded
-                    boardSelect.value = '';
                 } else {
                     fileName.textContent = '';
+                    // Clear imported data when file is removed
+                    importedBoardData = null;
+                    // Refresh the board dropdown to remove the imported option
+                    loadBoards();
+                    updateGenerateButton();
                 }
             });
 
             // Board selection handler
             boardSelect.addEventListener('change', async function() {
                 const selectedBoardId = this.value;
-                if (selectedBoardId) {
-                    // Clear JSON file selection when API board is selected
-                    jsonFileInput.value = '';
-                    fileName.textContent = '';
+                if (selectedBoardId && selectedBoardId !== 'imported') {
+                    // Clear JSON file when API board is selected
+                    const jsonFileInput = document.getElementById('jsonFileInput');
+                    const fileName = document.getElementById('fileName');
+                    if (jsonFileInput && fileName) {
+                        jsonFileInput.value = '';
+                        fileName.textContent = '';
+                        importedBoardData = null;
+                        // Refresh the board dropdown to remove the imported option
+                        await loadBoards();
+                    }
                     // Re-enable comments option for API boards
                     updateCommentsOption(false);
+                } else if (selectedBoardId === 'imported') {
+                    // Disable comments option for JSON imports
+                    updateCommentsOption(true);
                 }
                 await updateListSelection(selectedBoardId);
                 updateGenerateButton();
+                updateDataSourceIndicator(selectedBoardId);
             });
 
             // Generate button handler
@@ -881,17 +918,32 @@ function generateInteractiveHTML() {
 
                 importedBoardData = jsonData;
 
-                // Update the board select to show the imported board
+                // Update the board select to include the imported board as an option
                 const boardSelect = document.getElementById('boardSelect');
-                boardSelect.innerHTML = '<option value="">Choose a board...</option>' +
-                    '<option value="imported" data-name="' + jsonData.name + '" selected>📁 ' + jsonData.name + ' (Imported)</option>';
+                const currentValue = boardSelect.value;
 
-                // Load lists from the JSON
+                // Build the options list
+                let optionsHTML = '<option value="">Choose a board...</option>';
+
+                // Add API boards if available
+                if (boardsData.length > 0) {
+                    optionsHTML += boardsData.map(board =>
+                        \`<option value="\${board.id}" data-name="\${board.name}">\${board.name}</option>\`
+                    ).join('');
+                }
+
+                // Add the imported board option
+                optionsHTML += \`<option value="imported" data-name="\${jsonData.name}">📁 \${jsonData.name} (Imported)</option>\`;
+
+                boardSelect.innerHTML = optionsHTML;
+
+                                // Automatically select the imported board when JSON is uploaded
+                boardSelect.value = 'imported';
                 await updateListSelectionFromJSON();
-                updateGenerateButton();
-
-                // Disable comments option for JSON imports since comments aren't available
                 updateCommentsOption(true);
+                updateDataSourceIndicator('imported');
+
+                updateGenerateButton();
 
             } catch (error) {
                 console.error('Error parsing JSON file:', error);
@@ -913,24 +965,52 @@ function generateInteractiveHTML() {
 
                 if (result.success) {
                     boardsData = result.boards;
+                    const currentValue = boardSelect.value;
 
                     if (result.message) {
                         // Show message when no API credentials are available
-                        boardSelect.innerHTML = '<option value="">No API boards available</option>';
+                        let optionsHTML = '<option value="">No API boards available</option>';
+
+                        // Add imported board option if available
+                        if (importedBoardData) {
+                            optionsHTML += \`<option value="imported" data-name="\${importedBoardData.name}">📁 \${importedBoardData.name} (Imported)</option>\`;
+                        }
+
+                        boardSelect.innerHTML = optionsHTML;
 
                         // Add a helpful message to the board selection area
                         const boardSelectionDiv = document.querySelector('.board-selection-column:first-child');
                         if (boardSelectionDiv) {
+                            // Remove any existing message
+                            const existingMessage = boardSelectionDiv.querySelector('.api-message');
+                            if (existingMessage) {
+                                existingMessage.remove();
+                            }
+
                             const messageDiv = document.createElement('div');
+                            messageDiv.className = 'api-message';
                             messageDiv.style.cssText = 'color: #666; font-style: italic; margin-top: 0.5rem; font-size: 0.9rem;';
                             messageDiv.textContent = result.message;
                             boardSelectionDiv.appendChild(messageDiv);
                         }
                     } else {
-                        boardSelect.innerHTML = '<option value="">Choose a board...</option>' +
-                            boardsData.map(board =>
-                                \`<option value="\${board.id}" data-name="\${board.name}">\${board.name}</option>\`
-                            ).join('');
+                        // Build options list with API boards
+                        let optionsHTML = '<option value="">Choose a board...</option>';
+                        optionsHTML += boardsData.map(board =>
+                            \`<option value="\${board.id}" data-name="\${board.name}">\${board.name}</option>\`
+                        ).join('');
+
+                        // Add imported board option if available
+                        if (importedBoardData) {
+                            optionsHTML += \`<option value="imported" data-name="\${importedBoardData.name}">📁 \${importedBoardData.name} (Imported)</option>\`;
+                        }
+
+                        boardSelect.innerHTML = optionsHTML;
+                    }
+
+                    // Restore previous selection if it's still valid
+                    if (currentValue && boardSelect.querySelector(\`option[value="\${currentValue}"]\`)) {
+                        boardSelect.value = currentValue;
                     }
                 } else {
                     boardSelect.innerHTML = '<option value="">Error loading boards</option>';
@@ -951,6 +1031,16 @@ function generateInteractiveHTML() {
 
             if (!boardId) {
                 listSelectionDiv.innerHTML = '<p style="color: #666; font-style: italic;">Select a board to see available lists</p>';
+                return;
+            }
+
+            // Handle imported JSON case
+            if (boardId === 'imported') {
+                if (!importedBoardData) {
+                    listSelectionDiv.innerHTML = '<p style="color: #e53e3e;">No imported data available. Please upload a JSON file first.</p>';
+                    return;
+                }
+                await updateListSelectionFromJSON();
                 return;
             }
 
@@ -1008,6 +1098,12 @@ function generateInteractiveHTML() {
                                 updateGenerateButton();
                             });
                         });
+
+                        // Expand the list selection section when lists are loaded
+                        expandListSelectionSection();
+                        // Expand the options section and reset fields
+                        expandOptionsSection();
+                        resetOptionsFields();
                     } else {
                         listSelectionDiv.innerHTML = '<p style="color: #e53e3e;">No lists found in this board</p>';
                     }
@@ -1071,6 +1167,12 @@ function generateInteractiveHTML() {
                     listCheckboxes.forEach(checkbox => {
                         checkbox.addEventListener('change', updateGenerateButton);
                     });
+
+                    // Expand the list selection section when lists are loaded
+                    expandListSelectionSection();
+                    // Expand the options section and reset fields
+                    expandOptionsSection();
+                    resetOptionsFields();
                 } else {
                     listSelectionDiv.innerHTML = '<p style="color: #666;">No lists found in imported board</p>';
                 }
@@ -1091,10 +1193,9 @@ function generateInteractiveHTML() {
 
             const boardSelected = boardSelect.value;
             const listsSelected = document.querySelectorAll('input[name="selectedList"]:checked').length > 0;
-            const hasImportedData = importedBoardData !== null;
 
-            // Enable button if either API board is selected with lists, or JSON data is imported with lists
-            generateBtn.disabled = !((boardSelected && listsSelected) || (hasImportedData && listsSelected));
+            // Enable button if a board is selected (either API or imported) and lists are selected
+            generateBtn.disabled = !(boardSelected && listsSelected);
         }
 
         function updateCommentsOption(isJsonImport) {
@@ -1118,6 +1219,77 @@ function generateInteractiveHTML() {
                 commentsContainer.style.opacity = '1';
                 commentsContainer.title = '';
             }
+        }
+
+        function updateDataSourceIndicator(selectedBoardId) {
+            const apiColumn = document.querySelector('.board-selection-column:first-child');
+            const jsonColumn = document.querySelector('.board-selection-column:last-child');
+
+            // Remove active class from both columns
+            if (apiColumn) apiColumn.classList.remove('active');
+            if (jsonColumn) jsonColumn.classList.remove('active');
+
+            // Add active class to the appropriate column
+            if (selectedBoardId && selectedBoardId !== 'imported') {
+                // API board selected
+                if (apiColumn) apiColumn.classList.add('active');
+            } else if (selectedBoardId === 'imported') {
+                // Imported JSON selected
+                if (jsonColumn) jsonColumn.classList.add('active');
+            }
+        }
+
+        function expandListSelectionSection() {
+            // Find the list selection config group
+            const listSelectionGroup = document.querySelector('.config-group:nth-child(2)');
+            if (listSelectionGroup) {
+                const content = listSelectionGroup.querySelector('.config-content');
+                if (content && content.classList.contains('collapsed')) {
+                    content.classList.remove('collapsed');
+                    content.classList.add('expanded');
+                    listSelectionGroup.classList.remove('collapsed');
+                }
+            }
+        }
+
+        function expandOptionsSection() {
+            // Find the options config group
+            const optionsGroup = document.querySelector('.config-group:nth-child(3)');
+            if (optionsGroup) {
+                const content = optionsGroup.querySelector('.config-content');
+                if (content && content.classList.contains('collapsed')) {
+                    content.classList.remove('collapsed');
+                    content.classList.add('expanded');
+                    optionsGroup.classList.remove('collapsed');
+                }
+            }
+        }
+
+        function resetOptionsFields() {
+            // Reset title and subtitle fields
+            const docTitle = document.getElementById('docTitle');
+            const docSubtitle = document.getElementById('docSubtitle');
+
+            if (docTitle) docTitle.value = '';
+            if (docSubtitle) docSubtitle.value = '';
+
+            // Reset checkboxes to defaults
+            const includeComments = document.getElementById('includeComments');
+            const excludeEmptyCards = document.getElementById('excludeEmptyCards');
+
+            // Check if we're dealing with JSON import (comments disabled) or API board
+            const boardSelect = document.getElementById('boardSelect');
+            const isJsonImport = boardSelect && boardSelect.value === 'imported';
+
+            if (includeComments) {
+                if (isJsonImport) {
+                    includeComments.checked = false; // Disabled for JSON imports
+                } else {
+                    includeComments.checked = true; // Default to checked for API boards
+                }
+            }
+
+            if (excludeEmptyCards) excludeEmptyCards.checked = true; // Default to checked
         }
 
         async function generateDocumentation() {

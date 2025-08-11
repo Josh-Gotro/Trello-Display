@@ -1016,7 +1016,7 @@ function generateConfigurableHTML(cards, config) {
 </head>
 <body>
     ${generateCoverPageHTML(config, timestamp)}
-    
+
     ${config.logo.position !== 'cover' && config.isCliGenerated ? `
     <div class="header">
         <div class="container">
@@ -1048,6 +1048,7 @@ function generateConfigurableHTML(cards, config) {
         ${config.logo.position === 'footer' ? generateLogoHTML(config) : ''}
     </div>
 
+    ${!config.isCliGenerated ? `
     <script>
 ${generateHierarchicalSearchScript()}
 
@@ -1089,6 +1090,7 @@ ${generateHierarchicalSearchScript()}
             });
         }
     </script>
+    ` : ''}
 </body>
 </html>`;
 }
