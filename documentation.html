@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retirement and Benefits</title>
+    <title>rekl	</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -724,11 +724,11 @@
         <div class="cover-logo">
           <img src="public/assets/wostmann_logo.jpg" alt="Logo" style="max-width: 300px; height: auto;">
         </div>
-        <h1 class="cover-title">Retirement and Benefits</h1>
-        <h2 class="cover-subtitle">Business Rules</h2>
+        <h1 class="cover-title">rekl	</h1>
+        <h2 class="cover-subtitle">yo yuo</h2>
         <div class="cover-meta">
           <p class="cover-board">Board: Health Benefits Requirements</p>
-          <p class="cover-date">Generated: 8/11/2025, 10:17:10 AM</p>
+          <p class="cover-date">Generated: 8/11/2025, 10:54:34 AM</p>
         </div>
         
         <div class="cover-actions">
@@ -749,987 +749,785 @@
       <div class="document-section" id="section-1">
         <h1 class="section-header">
           <span class="section-number">1.</span>
-          <span class="section-title">Business Rules</span>
+          <span class="section-title">Phase 5 API Reference</span>
         </h1>
     
-        <div class="card-item" data-search="open enrollment workflow - initially populated selection rules confirm from ronan in 10/3 email that we should have bert replicate sims' behavior for this, which is the following:
+        <div class="card-item" data-search="delete pending coverage choice endpoint url: subscriber/rest/coverage-choice/{id} (delete)
 
-1. opt-outs are reset (both for ee-only/family and for full opt-out)
-2. hfsa is preserved – both the option (streamlining / no streamlining) and the amount.  i believe the amount was capped/bumped up if the hfsa max/min changed (shouldn’t be an issue for this year since hfsa limits are not changing)">
+this endpoint will mark the coveragechoice record identified by the `id` parameter as deleted.
+
+it will only look for coveragechoice records to delete that are “pending” (i.e., are not already associated with an active coverage record).
+
+it will return successfully (with no result) if it finds the specified coveragechoice and has been able to update the status to “deleted”.  it will return a not found exception if the id parameter doesn’t correspond to a valid pending coveragechoice for the logged in user.
+
+note that the get coverage endpoint has been updated to return the `id` for the pending coveragechoice records.">
           <h2 class="card-header">
             <span class="card-number">1.1</span>
-            <a href="https://trello.com/c/ONTIordS/713-open-enrollment-workflow-initially-populated-selection-rules" target="_blank" title="View in Trello" class="card-title">Open Enrollment Workflow - Initially Populated Selection Rules</a>
+            <a href="https://trello.com/c/IhDLaaH6/554-delete-pending-coverage-choice-endpoint" target="_blank" title="View in Trello" class="card-title">Delete Pending Coverage Choice Endpoint</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#713</span>
+            <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#554</span>
           </div>
           <div class="card-content">
-            <p>Confirm from Ronan in 10/3 email that we should have BERT replicate SIMS' behavior for this, which is the following:</p><p>1. Opt-outs are reset (both for EE-Only/Family and for full opt-out)<br>2. HFSA is preserved – both the option (Streamlining / No Streamlining) and the amount.  I believe the amount was capped/bumped up if the HFSA max/min changed (shouldn’t be an issue for this year since HFSA limits are not changing)</p>
+            <p>URL: subscriber/rest/coverage-choice/{id} (DELETE)</p><p>This endpoint will mark the CoverageChoice record identified by the <code class="inline-code">id</code> parameter as deleted.</p><p>It will only look for CoverageChoice records to delete that are “pending” (i.e., are not already associated with an active Coverage record).</p><p>It will return successfully (with no result) if it finds the specified CoverageChoice and has been able to update the status to “Deleted”.  It will return a Not Found Exception if the id parameter doesn’t correspond to a valid pending CoverageChoice for the logged in user.</p><p>Note that the Get Coverage endpoint has been updated to return the <code class="inline-code">id</code> for the pending CoverageChoice records.</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="bert member account / myrnb portal conflict detection/resolution since bert will be tracking associations between myalaskaid and employment separately from the existing myrnb portal tables (externalportal.userprofile and rbmi.personssn), discrepancies can arise – i.e., the portal may associate a myalaskaid with a different person than bert does.
+        <div class="card-item" data-search="save coverage choices service url: subscriber/rest/coverage-choice/selections (post)
 
-we need to model these cases and design a detection mechanism (plus possibilities for resolution of these conflicts).
+this endpoint should be called to submit subscriber coverage choice selections to the backend, which will validate them and return the id for the created coverage choice record if successful.  if there were validation errors, the service will return a 400 response code (bad request), and the body will contain a json object with a “validationerrors” property that will have an array of the error messages (strings).
 
-requires discussion with drb about the future of the portal before we start.">
+the service expects a json object in the post payload with the following information:
+
+```
+choicecriteria:
+  bargainingunitid
+  partfulltime (p/f)
+  coveragechangereasonid
+  eventdate
+  hasdependents (boolean - nullable)
+benefitselections: [ coveragechoicebenefitselection ]
+  benefittypeid
+  selectedbenefitoptionid
+  electedmonthlyrate (nullable)
+  optoutcertified (boolean - nullable/optional)
+```">
           <h2 class="card-header">
             <span class="card-number">1.2</span>
-            <a href="https://trello.com/c/XTNIDwXC/447-bert-member-account-myrnb-portal-conflict-detection-resolution" target="_blank" title="View in Trello" class="card-title">BERT Member Account / MyRnB Portal Conflict Detection/Resolution</a>
+            <a href="https://trello.com/c/EuOOFpxj/443-save-coverage-choices-service" target="_blank" title="View in Trello" class="card-title">Save Coverage Choices Service</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#447</span>
+            <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#443</span>
           </div>
           <div class="card-content">
-            <p>Since BERT will be tracking associations between MyAlaskaID and Employment separately from the existing MyRnB portal tables (EXTERNALPORTAL.USERPROFILE and RBMI.PERSONSSN), discrepancies can arise – i.e., the portal may associate a MyAlaskaID with a different person than BERT does.</p><p>We need to model these cases and design a detection mechanism (plus possibilities for resolution of these conflicts).</p><p>Requires discussion with DRB about the future of the portal before we start.</p>
+            <p>URL: subscriber/rest/coverage-choice/selections (POST)</p><p>This endpoint should be called to submit subscriber coverage choice selections to the backend, which will validate them and return the ID for the created Coverage Choice record if successful.  If there were validation errors, the service will return a 400 response code (Bad Request), and the body will contain a JSON object with a “validationErrors” property that will have an array of the error messages (strings).</p><p>The service expects a JSON object in the POST payload with the following information:</p><p><pre class="code-block"><code><br>choiceCriteria:<br>  bargainingUnitId<br>  partFullTime (P/F)<br>  coverageChangeReasonId<br>  eventDate<br>  hasDependents (boolean - nullable)<br>benefitSelections: [ CoverageChoiceBenefitSelection ]<br>  benefitTypeId<br>  selectedBenefitOptionId<br>  electedMonthlyRate (nullable)<br>  optOutCertified (boolean - nullable/optional)<br></code></pre>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="election period an election has an effective date range that govern both its coverage period and cost period.
+        <div class="card-item" data-search="admin save coverage choices service url: rest/coverage-choice/subscriber/{subscriberaccountid}/selections (post)
 
-the coverage begins on the start date of the election and ends on the end date of the election. the actual coverage may be suspended due to a coverage gap period.
+this endpoint should be called by the admin ui to allow the drb staff to submit subscriber coverage choice selections to the backend for the subscriber specified by the `subscriberaccountid`, which will validate them and return the id for the created coverage choice record if successful.  if there were validation errors, the service will return a 400 response code (bad request), and the body will contain a json object with a "validationerrors" property that will have an array of the error messages (strings).
 
-the cost for an election is monthly and is not prorated. the election that determines the cost for a given month is the election that includes the 1st of the given month.">
+the service expects a json object in the post payload with the following information:
+
+```
+choicecriteria:
+  bargainingunitid
+  partfulltime (p/f)
+  coveragechangereasonid
+  eventdate
+  hasdependents (boolean - nullable)
+  healtheligible (boolean - nullable)
+adminoverridecriteria: (optional object that maps to java type admincoveragechoiceoverrideinput)
+  coveragestartdate (string in mm/dd/yyyy format - nullable)
+  optoutcertificationdate (string in mm/dd/yyyy format - nullable)
+  receiveddate (string in mm/dd/yyyy format - nullable)
+  staffnotes (string - nullable)
+  autoapprove (boolean - nullable)
+  coveragechoiceid (string, will be changed to numeric at later release - nullable)
+benefitselections: [ coveragechoicebenefitselection ]
+  benefittypeid
+  selectedbenefitoptionid
+  electedmonthlyrate (nullable)
+coverageregenparams: (optional object that maps to java type coverageregenparamsinput)
+  lookbackstartdate (string in mm/dd/yyyy format)
+  changestartdate (string in mm/dd/yyyy format)
+  movecoveragestartdate (boolean)
+```
+
+this endpoint works similarly to the corresponding endpoint for the subscriber ui, but does not require sending the `optoutcertified` flag with each `benefitselection`.  instead, it has an optional `adminoverridecriteria` parameter that allows the opt out override date that was entered by drb staff to be sent as the `optoutcertificationdate` to be used for every benefit selection that the backend determines requires an opt-out.
+
+additionally, the optional `receiveddate` and `staffnotes` parameters can be provided to populate that metadata in the coveragechoice.
+
+the `coveragestartdate` override should be used when the “coverage override by staff” change reason is chosen (id 18).
+
+the `autoapprove` override should be set based on whether the user has opted to also approve coverage choices when they have picked a change reason that requires staff approval (should be a checkbox option in the ui that conditionally displays when they pick one of these change reasons – e.g., “change in marital status”).  this override can be omitted / set to null for other change reasons.">
           <h2 class="card-header">
             <span class="card-number">1.3</span>
-            <a href="https://trello.com/c/QrCgA0b5/446-election-period" target="_blank" title="View in Trello" class="card-title">Election Period</a>
+            <a href="https://trello.com/c/BBFivrKp/582-admin-save-coverage-choices-service" target="_blank" title="View in Trello" class="card-title">Admin Save Coverage Choices Service</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#446</span>
+            <span class="label" style="background-color: #999">Admin App</span>
+            <span class="card-id">#582</span>
           </div>
           <div class="card-content">
-            <p>An election has an effective date range that govern both its coverage period and cost period.</p><p>The coverage begins on the start date of the election and ends on the end date of the election. The actual coverage may be suspended due to a coverage gap period.</p><p>The cost for an election is monthly and is not prorated. The election that determines the cost for a given month is the election that includes the 1st of the given month.</p>
+            <p>URL: rest/coverage-choice/subscriber/{subscriberAccountId}/selections (POST)</p><p>This endpoint should be called by the Admin UI to allow the DRB Staff to submit subscriber coverage choice selections to the backend for the subscriber specified by the <code class="inline-code">subscriberAccountId</code>, which will validate them and return the ID for the created Coverage Choice record if successful.  If there were validation errors, the service will return a 400 response code (Bad Request), and the body will contain a JSON object with a "validationErrors" property that will have an array of the error messages (strings).</p><p>The service expects a JSON object in the POST payload with the following information:</p><p><pre class="code-block"><code><br>choiceCriteria:<br>  bargainingUnitId<br>  partFullTime (P/F)<br>  coverageChangeReasonId<br>  eventDate<br>  hasDependents (boolean - nullable)<br>  healthEligible (boolean - nullable)<br>adminOverrideCriteria: (optional object that maps to Java type AdminCoverageChoiceOverrideInput)<br>  coverageStartDate (string in MM/DD/YYYY format - nullable)<br>  optOutCertificationDate (string in MM/DD/YYYY format - nullable)<br>  receivedDate (string in MM/DD/YYYY format - nullable)<br>  staffNotes (string - nullable)<br>  autoApprove (boolean - nullable)<br>  coverageChoiceId (string, will be changed to numeric at later release - nullable)<br>benefitSelections: [ CoverageChoiceBenefitSelection ]<br>  benefitTypeId<br>  selectedBenefitOptionId<br>  electedMonthlyRate (nullable)<br>coverageRegenParams: (optional object that maps to Java type CoverageRegenParamsInput)<br>  lookbackStartDate (string in MM/DD/YYYY format)<br>  changeStartDate (string in MM/DD/YYYY format)<br>  moveCoverageStartDate (boolean)<br></code></pre></p><p>This endpoint works similarly to the corresponding endpoint for the Subscriber UI, but does not require sending the <code class="inline-code">optOutCertified</code> flag with each <code class="inline-code">benefitSelection</code>.  Instead, it has an optional <code class="inline-code">adminOverrideCriteria</code> parameter that allows the opt out override date that was entered by DRB Staff to be sent as the <code class="inline-code">optOutCertificationDate</code> to be used for every benefit selection that the backend determines requires an opt-out.</p><p>Additionally, the optional <code class="inline-code">receivedDate</code> and <code class="inline-code">staffNotes</code> parameters can be provided to populate that metadata in the CoverageChoice.</p><p>The <code class="inline-code">coverageStartDate</code> override should be used when the “Coverage Override by Staff” change reason is chosen (ID 18).</p><p>The <code class="inline-code">autoApprove</code> override should be set based on whether the user has opted to also approve coverage choices when they have picked a change reason that requires staff approval (should be a checkbox option in the UI that conditionally displays when they pick one of these change reasons – e.g., “Change in Marital Status”).  This override can be omitted / set to null for other change reasons.</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="bert election requirements/design this card will be broken up into separate requirements. this is information from discussions with drb staff.">
+        <div class="card-item" data-search="validate coverage choices / determine opt-out service this service performs initial validation on proposed coverage choices, and identifies which opt-out choices require that the ui present the user with the waiver certification.
+
+url: subscriber/rest/coverage-choice/validate (post)
+
+this endpoint should be called to submit subscriber coverage choice selections to the backend, and it will validate them and return an object specified below that indicates whether the opt-out certification step/modal should be shown to the user and indicates for each benefit selection whether that benefit requires an opt-out.  the `certificationdescription` field of each of the benefitselections that have a true value for `optoutcerificationrequired` should be presented to the user as a list in the ui component that presents the opt-out certification language to the user.
+
+the optional `hasdependents` parameter should be used for the new subscriber workflow so that the business rules can be applied correctly based on the user’s response to the dependents question.  it will be ignored for existing subscribers (the system will enforce the rules based on the dependent information that is on file with the jdms system).
+
+if there were validation errors (unrelated to the fact that the opt-out certification has not yet been satisfied), then the service will return a 400 response code (bad request), and the body will contain a json object with a “validationerrors” property that will have an array of the error messages (strings).
+
+the service expects a json object in the post payload with the following information:
+
+```
+choicecriteria:
+  bargainingunitid
+  partfulltimeindicator (p/f)
+  coveragechangereasonid
+  eventdate
+  hasdependents (boolean - nullable)
+benefitselections: [ coveragechoicebenefitselection ]
+  benefittypeid
+  selectedbenefitoptionid
+  electedmonthlyrate (nullable)
+```
+
+the service will return a json object with the following information (note that [ ] denotes an array of objects):
+
+```
+optoutcertificationrequired (boolean)
+benefitselections: [ benefitselectionoptoutrequirement ]
+  benefittypeid
+  optoutcerificationrequired (boolean)
+  certificationdescription
+```">
           <h2 class="card-header">
             <span class="card-number">1.4</span>
-            <a href="https://trello.com/c/dBN2OU3Q/445-bert-election-requirements-design" target="_blank" title="View in Trello" class="card-title">BERT Election Requirements/Design</a>
+            <a href="https://trello.com/c/vpL2Ifzt/419-validate-coverage-choices-determine-opt-out-service" target="_blank" title="View in Trello" class="card-title">Validate Coverage Choices / Determine Opt-Out Service</a>
           </h2>
           <div class="card-meta">
-            <span class="label" style="background-color: #00c2e0">Business Question</span>
-            <span class="card-id">#445</span>
+            <span class="label" style="background-color: #999">Service Layer</span> <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#419</span>
           </div>
           <div class="card-content">
-            <p>This card will be broken up into separate requirements. This is information from discussions with DRB staff.</p>
+            <p>This service performs initial validation on proposed coverage choices, and identifies which opt-out choices require that the UI present the user with the waiver certification.</p><p>URL: subscriber/rest/coverage-choice/validate (POST)</p><p>This endpoint should be called to submit subscriber coverage choice selections to the backend, and it will validate them and return an object specified below that indicates whether the opt-out certification step/modal should be shown to the user and indicates for each benefit selection whether that benefit requires an opt-out.  The <code class="inline-code">certificationDescription</code> field of each of the benefitSelections that have a true value for <code class="inline-code">optOutCerificationRequired</code> should be presented to the user as a list in the UI component that presents the opt-out certification language to the user.</p><p>The optional <code class="inline-code">hasDependents</code> parameter should be used for the New Subscriber workflow so that the business rules can be applied correctly based on the user’s response to the dependents question.  It will be ignored for Existing Subscribers (the system will enforce the rules based on the dependent information that is on file with the JDMS system).</p><p>If there were validation errors (unrelated to the fact that the opt-out certification has not yet been satisfied), then the service will return a 400 response code (Bad Request), and the body will contain a JSON object with a “validationErrors” property that will have an array of the error messages (strings).</p><p>The service expects a JSON object in the POST payload with the following information:</p><p><pre class="code-block"><code><br>choiceCriteria:<br>  bargainingUnitId<br>  partFullTimeIndicator (P/F)<br>  coverageChangeReasonId<br>  eventDate<br>  hasDependents (boolean - nullable)<br>benefitSelections: [ CoverageChoiceBenefitSelection ]<br>  benefitTypeId<br>  selectedBenefitOptionId<br>  electedMonthlyRate (nullable)<br></code></pre></p><p>The service will return a JSON object with the following information (note that [ ] denotes an array of objects):</p><p><pre class="code-block"><code><br>optOutCertificationRequired (boolean)<br>benefitSelections: [ BenefitSelectionOptOutRequirement ]<br>  benefitTypeId<br>  optOutCerificationRequired (boolean)<br>  certificationDescription<br></code></pre>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="mlwop / fmla coverage rules ">
+        <div class="card-item" data-search="get subscriber account service url: subscriber/rest/subscriber-account
+
+based on the session information (myalaskaid, employmentid), provide the employee information. that should include:
+
+- last name
+- first name
+- middle name
+- ssn
+- birth date
+- contact phone
+- contact email
+- accepted terms date
+- employmentid - null if a new subscriber
+- subscriberaccountid - null if totally new subscriber - never seen before
+- haspendingchoices - true of subscriber has made choices which are not activated yet (mostly useful only for new subscribers so ui can detect whether initial coverage workflow should be shown or not)
+
+if the person is active (i.e employmentid not null), then the information would come from the employment table. otherwise it will come from the subscriber account table. if unknown, then return blank values for the values and a null for subscriberaccountid.
+
+even if the person is active, the contact phone/email will still need to come from the the subscriber account table.">
           <h2 class="card-header">
             <span class="card-number">1.5</span>
-            <a href="https://trello.com/c/gw5yDCQw/210-mlwop-fmla-coverage-rules" target="_blank" title="View in Trello" class="card-title">MLWOP / FMLA coverage rules</a>
+            <a href="https://trello.com/c/dgGyEsqW/415-get-subscriber-account-service" target="_blank" title="View in Trello" class="card-title">Get Subscriber Account Service</a>
           </h2>
           <div class="card-meta">
-            <span class="label" style="background-color: #00c2e0">Business Question</span>
-            <span class="card-id">#210</span>
+            <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#415</span>
           </div>
           <div class="card-content">
-            
+            <p>URL: subscriber/rest/subscriber-account</p><p>Based on the session information (myAlaskaId, employmentId), provide the employee information. That should include:</p><p>- Last Name<br>- First Name<br>- Middle Name<br>- SSN<br>- Birth Date<br>- Contact Phone<br>- Contact Email<br>- Accepted Terms Date<br>- employmentId - NULL if a new subscriber<br>- subscriberAccountId - NULL if totally new subscriber - never seen before<br>- hasPendingChoices - true of subscriber has made choices which are not activated yet (mostly useful only for new subscribers so UI can detect whether initial coverage workflow should be shown or not)</p><p>If the person is active (i.e employmentId not null), then the information would come from the Employment table. Otherwise it will come from the Subscriber Account table. If unknown, then return blank values for the values and a NULL for subscriberAccountId.</p><p>Even if the person is active, the contact Phone/Email will still need to come from the the Subscriber Account table.</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="qualifying events and election approvals in general drb now considers almost all employment changes as a qualifying event. bert is currently only receiving employment changes when one of the three following elements change:
+        <div class="card-item" data-search="get coverage change reason options service url: subscriber/rest/codes/coveragechangereasons
 
-- bargaining unit
-- part/full time indicator
-- health eligibility indicator
+this service will provide the list of allowed coverage change reasons for the current employee.
 
-in addition bert also receives the following employment events that are considered qualifying events:
+this service will return an array of json objects with the following properties:
 
-- hire/rehire
-- return from lwop/layoff
+- coveragechangereasonid
+- title
 
-elections for other qualifying events will be subject to drb approval since there is no information to match against.
+the initial version of this service should return a list of all reasons from hard coded values.
 
-elections for the events bert knows about will be automatically approved once they come in from iris. they will be matched on the following criteria:
-
-- bargaining unit - exact match
-- full/part time indicator - exact match
-- health eligibility indicator - must always be y
-- event date - within the system set range (e.g. +/- 5 days)
-
-if the election event date is off by more than the system set range, then drb staff approval is required. if the bargainunit or full/part time indicator does not match, it will be ignored/rejected.">
+the final version if this service may consider a number of factors to decide which reasons are allowed. the open enrollment option is one known factor. the final version will also retrieve the reasons from the database.">
           <h2 class="card-header">
             <span class="card-number">1.6</span>
-            <a href="https://trello.com/c/QhwlR50O/411-qualifying-events-and-election-approvals" target="_blank" title="View in Trello" class="card-title">Qualifying Events and Election Approvals</a>
+            <a href="https://trello.com/c/HXJV7U3A/444-get-coverage-change-reason-options-service" target="_blank" title="View in Trello" class="card-title">Get Coverage Change Reason Options Service</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#411</span>
+            <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#444</span>
           </div>
           <div class="card-content">
-            <p>In general DRB now considers almost all employment changes as a qualifying event. BERT is currently only receiving employment changes when one of the three following elements change:</p><p>- Bargaining Unit<br>- Part/Full Time Indicator<br>- Health Eligibility Indicator</p><p>In addition BERT also receives the following employment events that are considered qualifying events:</p><p>- Hire/Rehire<br>- Return from LWOP/Layoff</p><p>Elections for other qualifying events will be subject to DRB approval since there is no information to match against.</p><p>Elections for the events BERT knows about will be automatically approved once they come in from IRIS. They will be matched on the following criteria:</p><p>- Bargaining Unit - exact match<br>- Full/Part Time Indicator - exact match<br>- Health Eligibility Indicator - must always be Y<br>- Event Date - within the system set range (e.g. +/- 5 days)</p><p>If the election Event Date is off by more than the system set range, then DRB staff approval is required. If the BargainUnit or Full/Part Time Indicator does not match, it will be ignored/rejected.</p>
+            <p>URL: subscriber/rest/codes/coverageChangeReasons</p><p>This service will provide the list of allowed coverage change reasons for the current employee.</p><p>This service will return an array of JSON Objects with the following properties:</p><p>- coverageChangeReasonId<br>- Title</p><p>The initial version of this service should return a list of all reasons from hard coded values.</p><p>The final version if this service may consider a number of factors to decide which reasons are allowed. The open enrollment option is one known factor. The final version will also retrieve the reasons from the database.</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="hins z code carryover between service 1. bert will respond to hins “z” codes more broadly than sims does today.  in particular, bert will not provide coverage to an otherwise-health-eligible member if finance has a z code in place.  a z code with an effective date on or before a member’s hire date will prevent them from enrolling in benefits.  additionally, a z code that arises during the course of a member’s employment will result in coverage being cancelled from that point forward.  (note that sims currently implements this second “after-arising” rule and ignores z codes on or before the hire date.)  the rules of when coverage will be stopped/started in response to changes in the z status (e.g., f -> z or z -> f) will be as follows:
-   1. when finance turns “on” the z code, coverage will end based on the first 1st rule – if the effective date of the z code is the 1st of a month, then coverage ends on the last day of the prior month; otherwise, coverage will end on the last day of the month of the z code effective date (examples: z code effective 3/1/2024 => coverage end date 2/29/2024.  z code effective 3/2/2024 => coverage end date 3/31/2024.)
-   2. when finance turns “off” the z code, coverage will start on the effective date of the new health-eligible code (i.e., on the effective date of the “f” or “p” that follows the “z”).">
+        <div class="card-item" data-search="get current employment info service url: subscriber/rest/subscriber-account/current-status
+
+based on the session information, get the employmentid associated with the current subscriber and use that to get the record from the employment_status table for that employmentid with the most recent effective date:
+
+the relevant fields for the frontend are:
+
+‌
+
+- bargaining unit id
+- part full time indicator
+- health eligible indicator">
           <h2 class="card-header">
             <span class="card-number">1.7</span>
-            <a href="https://trello.com/c/LlSfGFiu/413-hins-z-code-carryover-between-service" target="_blank" title="View in Trello" class="card-title">HINS Z Code Carryover between Service</a>
+            <a href="https://trello.com/c/AFjomJcE/536-get-current-employment-info-service" target="_blank" title="View in Trello" class="card-title">Get Current Employment Info Service</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#413</span>
+            <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#536</span>
           </div>
           <div class="card-content">
-            <p>1. BERT will respond to HINS “Z” codes more broadly than SIMS does today.  In particular, BERT will not provide coverage to an otherwise-health-eligible member if Finance has a Z code in place.  A Z code with an effective date on or before a member’s hire date will prevent them from enrolling in benefits.  Additionally, a Z code that arises during the course of a member’s employment will result in coverage being cancelled from that point forward.  (Note that SIMS currently implements this second “after-arising” rule and ignores Z codes on or before the hire date.)  The rules of when coverage will be stopped/started in response to changes in the Z status (e.g., F -> Z or Z -> F) will be as follows:<br>   1. When Finance turns “on” the Z code, coverage will end based on the first 1st rule – if the effective date of the Z code is the 1st of a month, then coverage ends on the last day of the prior month; otherwise, coverage will end on the last day of the month of the Z code effective date (Examples: Z code effective 3/1/2024 => coverage end date 2/29/2024.  Z code effective 3/2/2024 => coverage end date 3/31/2024.)<br>   2. When Finance turns “off” the Z code, coverage will start on the effective date of the new health-eligible code (i.e., on the effective date of the “F” or “P” that follows the “Z”).</p>
+            <p>URL: subscriber/rest/subscriber-account/current-status</p><p>Based on the session information, get the employmentId associated with the current subscriber and use that to get the record from the employment_status table for that employmentId with the most recent effective date:</p><p>The relevant fields for the frontend are:</p><p>‌</p><p>- Bargaining Unit Id<br>- Part Full Time Indicator<br>- Health Eligible Indicator</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="published direct premium pay rules conflict with current process overview
-===
-the currently published rules on drb website seem to contradict the current coverage rules in sims. we need to clarify those rules for the bert design. we are specifically concerned with the **bold** below language:
+        <div class="card-item" data-search="admin get coverage choice options service # specifications for rest api
 
-updated rule, effective january 1, 2020:
-===
-alaskacare eligible employees in lwop status on the first working day of the month will continue their health insurance coverage if they continue to timely pay their monthly insurance premium (through payroll deduction **or self-pay**). the employee will no longer be required to be in pay status for four hours on the first workday of the month.
+url: rest/coverage-choice/subscriber/{subscriberaccountid}
 
-**it is the employee’s responsibility to ensure the alaskacare premium is paid in order to remain covered. this may require action on the employee’s part as the alaskacare premium may not automatically be deducted from an employee’s paycheck when the employee is in lwop status.**
+this service will provide a set of coverage options and costs for the subscriber with the `subscriberaccountid` specified in the url, so drb staff can make elections for that subscriber.
 
-note: **leave of absence rules, such as seasonal leave of absence (slwop) remain the same and will still result in periods without coverage.**
-">
+the following information/parameters must be provided:
+
+- bargainingunitid
+- partfulltime (p/f)
+- coveragechangereasonid
+- eventdate
+- hasdependents (boolean – nullable)
+- healtheligible (boolean – nullable)
+
+the only change from the subscriber ui endpoint is the addition of the optional `healtheligible` parameter, which will allows the drb staff to modify coverage for non-ak eligible members.  it also supports the full range of bargaining units.  if criteria is provided that specifies a non-alaskacare-eligible position, the backend will return the response below, but the `benefits` array will be empty.  the ui needs to handle this, and then submit an empty array to the submission endpoint for the backend to set up a non-eligible coverage segment (benefit package 100).
+
+this service will return a json object with the following information (note the response is the same as the corresponding endpoint for the subscriber ui):
+
+```
+benefitinfourl
+dependentsindicator (y/n)
+benefits: [ benefit ]
+  benefittypeid
+  benefittypetitle
+  selectedbenefitoptionid (selected/default)
+  minmonthlyrate (only for hfsa)
+  maxmonthlyrate (only for hfsa)
+  electedmonthlyrate (only for hfsa)
+  benefitoptions: [ benefit option ]
+      benefitoptionid
+      benefitplanid (nullable)
+      benefitplantitle (nullable)
+      benefitlevelid (nullable)
+      benefitleveltitle (nullable)
+      monthlycost (null for hfsa)
+      defaultoptionindicator
+```
+
+‌
+
+benefit type
+
+```
+1	medical
+2	dental
+3	vision
+4	hfsa
+```
+
+benefit plan
+
+```
+benefit   benefit
+plan_id   type_id	title
+101       1         medical – consumer choice
+102       1	        medical – economy
+103       1	        medical – standard
+201       2	        dental – economy
+202       2	        dental – standard
+301       3	        vision – managed care
+401       4	        hfsa
+```
+
+benefit level
+
+```
+benefit_level_id	title
+1	                employee only
+2	                employer and family
+20                  no streamlining
+21                  with streamlining
+```">
           <h2 class="card-header">
             <span class="card-number">1.8</span>
-            <a href="https://trello.com/c/mBo81UIT/255-published-direct-premium-pay-rules-conflict-with-current-process" target="_blank" title="View in Trello" class="card-title">Published Direct Premium Pay Rules Conflict with Current Process</a>
+            <a href="https://trello.com/c/bbhV1fPr/581-admin-get-coverage-choice-options-service" target="_blank" title="View in Trello" class="card-title">Admin Get Coverage Choice Options Service</a>
           </h2>
           <div class="card-meta">
-            <span class="label" style="background-color: #00c2e0">Business Question</span>
-            <span class="card-id">#255</span>
+            <span class="label" style="background-color: #999">Admin App</span>
+            <span class="card-id">#581</span>
           </div>
           <div class="card-content">
-            <p>Overview<br>===<br>The currently published rules on DRB website seem to contradict the current coverage rules in SIMS. We need to clarify those rules for the BERT design. We are specifically concerned with the <strong>bold</strong> below language:</p><p>Updated Rule, effective January 1, 2020:<br>===<br>AlaskaCare eligible employees in LWOP status on the first working day of the month will continue their health insurance coverage if they continue to timely pay their monthly insurance premium (through payroll deduction <strong>or self-pay</strong>). The employee will no longer be required to be in pay status for four hours on the first workday of the month.</p><p><strong>It is the employee’s responsibility to ensure the AlaskaCare premium is paid in order to remain covered. This may require action on the employee’s part as the AlaskaCare premium may not automatically be deducted from an employee’s paycheck when the employee is in LWOP status.</strong></p><div class="special-block note-block"><br>      <div class="block-header">NOTE</div><br>      <div class="block-content"><strong>Leave of absence rules, such as Seasonal Leave of Absence (SLWOP) remain the same and will still result in periods without coverage.</strong></div><br>    </div>
+            <h3>Specifications for Rest API</h3><p>URL: rest/coverage-choice/subscriber/{subscriberAccountId}</p><p>This service will provide a set of coverage options and costs for the subscriber with the <code class="inline-code">subscriberAccountId</code> specified in the URL, so DRB staff can make elections for that subscriber.</p><p>The following information/parameters must be provided:</p><p>- bargainingUnitId<br>- partFullTime (P/F)<br>- coverageChangeReasonId<br>- eventDate<br>- hasDependents (boolean – nullable)<br>- healthEligible (boolean – nullable)</p><p>The only change from the Subscriber UI endpoint is the addition of the optional <code class="inline-code">healthEligible</code> parameter, which will allows the DRB staff to modify coverage for non-AK eligible members.  It also supports the full range of Bargaining Units.  If criteria is provided that specifies a non-AlaskaCare-eligible position, the backend will return the response below, but the <code class="inline-code">benefits</code> array will be empty.  The UI needs to handle this, and then submit an empty array to the submission endpoint for the backend to set up a non-eligible Coverage segment (Benefit Package 100).</p><p>This service will return a JSON object with the following information (note the response is the same as the corresponding endpoint for the Subscriber UI):</p><p><pre class="code-block"><code><br>benefitInfoUrl<br>dependentsIndicator (Y/N)<br>benefits: [ Benefit ]<br>  benefitTypeId<br>  benefitTypeTitle<br>  selectedBenefitOptionId (selected/default)<br>  minMonthlyRate (only for HFSA)<br>  maxMonthlyRate (only for HFSA)<br>  electedMonthlyRate (only for HFSA)<br>  benefitOptions: [ Benefit Option ]<br>      benefitOptionId<br>      benefitPlanId (nullable)<br>      benefitPlanTitle (nullable)<br>      benefitLevelId (nullable)<br>      benefitLevelTitle (nullable)<br>      monthlyCost (null for HFSA)<br>      defaultOptionIndicator<br></code></pre></p><p>‌</p><p>Benefit Type</p><p><pre class="code-block"><code><br>1	Medical<br>2	Dental<br>3	Vision<br>4	HFSA<br></code></pre></p><p>Benefit Plan</p><p><pre class="code-block"><code><br>benefit   benefit<br>plan_id   type_id	title<br>101       1         Medical – Consumer Choice<br>102       1	        Medical – Economy<br>103       1	        Medical – Standard<br>201       2	        Dental – Economy<br>202       2	        Dental – Standard<br>301       3	        Vision – Managed Care<br>401       4	        HFSA<br></code></pre></p><p>Benefit Level</p><p><pre class="code-block"><code><br>benefit_level_id	title<br>1	                Employee Only<br>2	                Employer and Family<br>20                  No Streamlining<br>21                  With Streamlining<br></code></pre>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="benefit year the benefit year for health benefits is the calendar year.">
+        <div class="card-item" data-search="get coverage choice options service # specifications for rest api
+
+url: subscriber/rest/coverage-choice
+
+this service will provide a set of coverage options and costs so the user can make elections.
+
+the following information/parameters must be provided:
+
+- bargainingunitid
+- partfulltime (p/f)
+- coveragechangereasonid
+- eventdate
+- hasdependents (boolean – nullable)
+
+this service will return a json object with the following information:
+
+```
+benefitinfourl
+dependentsindicator (y/n)
+benefits: [ benefit ]
+  benefittypeid
+  benefittypetitle
+  selectedbenefitoptionid (selected/default)
+  minmonthlyrate (only for hfsa)
+  maxmonthlyrate (only for hfsa)
+  electedmonthlyrate (only for hfsa)
+  benefitoptions: [ benefit option ]
+      benefitoptionid
+      benefitplanid (nullable)
+      benefitplantitle (nullable)
+      benefitlevelid (nullable)
+      benefitleveltitle (nullable)
+      monthlycost (null for hfsa)
+      defaultoptionindicator
+```
+
+‌
+
+benefit type
+
+```
+1	medical
+2	dental
+3	vision
+4	hfsa
+```
+
+benefit plan
+
+```
+benefit   benefit
+plan_id   type_id	title
+101       1         medical – consumer choice
+102       1	        medical – economy
+103       1	        medical – standard
+201       2	        dental – economy
+202       2	        dental – standard
+301       3	        vision – managed care
+401       4	        hfsa
+```
+
+benefit level
+
+```
+benefit_level_id	title
+1	                employee only
+2	                employer and family
+20                  no streamlining
+21                  with streamlining
+```
+
+# specifications for providing results
+
+for the initial version, simply construct an typical response manually using the given object structure.
+
+further specifications will be provided for actual retrieval of values from database.">
           <h2 class="card-header">
             <span class="card-number">1.9</span>
-            <a href="https://trello.com/c/OU5fdHUE/283-benefit-year" target="_blank" title="View in Trello" class="card-title">Benefit Year</a>
+            <a href="https://trello.com/c/7NeFeeGM/417-get-coverage-choice-options-service" target="_blank" title="View in Trello" class="card-title">Get Coverage Choice Options Service</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#283</span>
+            <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#417</span>
           </div>
           <div class="card-content">
-            <p>The benefit year for health benefits is the calendar year.</p>
+            <h3>Specifications for Rest API</h3><p>URL: subscriber/rest/coverage-choice</p><p>This service will provide a set of coverage options and costs so the user can make elections.</p><p>The following information/parameters must be provided:</p><p>- bargainingUnitId<br>- partFullTime (P/F)<br>- coverageChangeReasonId<br>- eventDate<br>- hasDependents (boolean – nullable)</p><p>This service will return a JSON object with the following information:</p><p><pre class="code-block"><code><br>benefitInfoUrl<br>dependentsIndicator (Y/N)<br>benefits: [ Benefit ]<br>  benefitTypeId<br>  benefitTypeTitle<br>  selectedBenefitOptionId (selected/default)<br>  minMonthlyRate (only for HFSA)<br>  maxMonthlyRate (only for HFSA)<br>  electedMonthlyRate (only for HFSA)<br>  benefitOptions: [ Benefit Option ]<br>      benefitOptionId<br>      benefitPlanId (nullable)<br>      benefitPlanTitle (nullable)<br>      benefitLevelId (nullable)<br>      benefitLevelTitle (nullable)<br>      monthlyCost (null for HFSA)<br>      defaultOptionIndicator<br></code></pre></p><p>‌</p><p>Benefit Type</p><p><pre class="code-block"><code><br>1	Medical<br>2	Dental<br>3	Vision<br>4	HFSA<br></code></pre></p><p>Benefit Plan</p><p><pre class="code-block"><code><br>benefit   benefit<br>plan_id   type_id	title<br>101       1         Medical – Consumer Choice<br>102       1	        Medical – Economy<br>103       1	        Medical – Standard<br>201       2	        Dental – Economy<br>202       2	        Dental – Standard<br>301       3	        Vision – Managed Care<br>401       4	        HFSA<br></code></pre></p><p>Benefit Level</p><p><pre class="code-block"><code><br>benefit_level_id	title<br>1	                Employee Only<br>2	                Employer and Family<br>20                  No Streamlining<br>21                  With Streamlining<br></code></pre></p><h3>Specifications for Providing Results</h3><p>For the initial version, simply construct an typical response manually using the given object structure.</p><p>Further specifications will be provided for actual retrieval of values from database.</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="lwop end date interpretation for historical reasons, sims currently defines lwop_end_date as the first day back at work (i.e., the first day *not* on lwop).
+        <div class="card-item" data-search="get coverage service (pending, current and future coverage records) url: subscriber/rest/coverage
 
-discussed in meeting with health team on 4/11/2022 -- decided to change this going forward in bert to align with business understanding of representing instead the last day on lwop.
+based on the session information (myalaskaid, employmentid), provide the coverage record that is currently in effect for the subscriber (if any), as well as any future-dated coverage records.
 
-note that this change also matches the interpretation of service events (stand and end dates are *inclusive* -- i.e., the termination date/end date for service is the last day at work and not the first day not at work).  this also align with how the lwop segment appears in iris -- there is a start date and end date and then the next record shows the "return to work" event starting on the day following the lwop end date.
+the service will return a json object with the following information (note that <> denotes type for a single object, and [ ] denotes an array of objects):
 
-the new interface view from employer services (empsrv.bert_employment_event, which is represented in bert by the synonym es_employment_event) will be written to reflect this, and so the end_date field for the core bert table employment_event should also be interpreted to be the last day of the period for all employment event types.">
+```
+current: < coveragepresentation > (nullable)
+  coveragechangereason
+  eventdate
+  startdate
+  enddate
+  deductionstartdate
+  benefits: [ coveragebenefitpresentation ]
+    benefittypeid
+    benefittypetitle
+    selectedbenefitoptionid
+    selectedbenefitoptiontitle
+    montlypremium
+future: [ coveragepresentation ]
+  coveragechangereason
+  eventdate
+  startdate
+  enddate
+  deductionstartdate
+  benefits: [ coveragebenefitpresentation ]
+    benefittypeid
+    benefittypetitle
+    selectedbenefitoptionid
+    selectedbenefitoptiontitle
+    montlypremium
+pending: [ pendingcoveragepresentation ]
+  id
+  bargainingunit (string - full title)
+  partfulltime (string - p/f)
+  overagechangereason (string - full title)
+  eventdate (string - mm/dd/yyyy format)
+  projectedstartdate (string - mm/dd/yyyy format)
+  benefits: [ coveragebenefitpresentation ]
+    benefittypeid
+    benefittypetitle
+    selectedbenefitoptionid
+    selectedbenefitoptiontitle
+    montlypremium
+```
+
+‌
+
+‌
+
+the attached sql file contains a set of statements that can be run to generate coverage and coveragebenefit test data in your local database – it generates the data from existing election/electionbenefit records, so the bert sample data needs to be populated as a prerequisite.">
           <h2 class="card-header">
             <span class="card-number">1.10</span>
-            <a href="https://trello.com/c/DL3Mh6LE/253-lwop-end-date-interpretation" target="_blank" title="View in Trello" class="card-title">LWOP End Date Interpretation</a>
+            <a href="https://trello.com/c/XwSAloTc/464-get-coverage-service-pending-current-and-future-coverage-records" target="_blank" title="View in Trello" class="card-title">Get Coverage Service (Pending, Current and Future Coverage Records)</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#253</span>
+            <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#464</span>
           </div>
           <div class="card-content">
-            <p>For historical reasons, SIMS currently defines LWOP_END_DATE as the first day back at work (i.e., the first day *not* on LWOP).</p><p>Discussed in meeting with Health team on 4/11/2022 -- decided to change this going forward in BERT to align with business understanding of representing instead the last day on LWOP.</p><p>Note that this change also matches the interpretation of Service events (stand and end dates are *inclusive* -- i.e., the Termination Date/End Date for Service is the last day at work and not the first day not at work).  This also align with how the LWOP segment appears in IRIS -- there is a Start Date and End Date and then the next record shows the "Return to Work" event starting on the day following the LWOP End Date.</p><p>The new interface view from Employer Services (EMPSRV.BERT_EMPLOYMENT_EVENT, which is represented in BERT by the synonym ES_EMPLOYMENT_EVENT) will be written to reflect this, and so the END_DATE field for the core BERT table EMPLOYMENT_EVENT should also be interpreted to be the last day of the period for ALL Employment Event Types.</p>
+            <p>URL: subscriber/rest/coverage</p><p>Based on the session information (myAlaskaId, employmentId), provide the coverage record that is currently in effect for the subscriber (if any), as well as any future-dated coverage records.</p><p>The service will return a JSON object with the following information (note that <> denotes type for a single object, and [ ] denotes an array of objects):</p><p><pre class="code-block"><code><br>current: < CoveragePresentation > (nullable)<br>  coverageChangeReason<br>  eventDate<br>  startDate<br>  endDate<br>  deductionStartDate<br>  benefits: [ CoverageBenefitPresentation ]<br>    benefitTypeId<br>    benefitTypeTitle<br>    selectedBenefitOptionId<br>    selectedBenefitOptionTitle<br>    montlyPremium<br>future: [ CoveragePresentation ]<br>  coverageChangeReason<br>  eventDate<br>  startDate<br>  endDate<br>  deductionStartDate<br>  benefits: [ CoverageBenefitPresentation ]<br>    benefitTypeId<br>    benefitTypeTitle<br>    selectedBenefitOptionId<br>    selectedBenefitOptionTitle<br>    montlyPremium<br>pending: [ PendingCoveragePresentation ]<br>  id<br>  bargainingUnit (string - full title)<br>  partFullTime (string - P/F)<br>  overageChangeReason (string - full title)<br>  eventDate (string - MM/DD/YYYY format)<br>  projectedStartDate (string - MM/DD/YYYY format)<br>  benefits: [ CoverageBenefitPresentation ]<br>    benefitTypeId<br>    benefitTypeTitle<br>    selectedBenefitOptionId<br>    selectedBenefitOptionTitle<br>    montlyPremium<br></code></pre></p><p>‌</p><p>‌</p><p>The attached SQL file contains a set of statements that can be run to generate Coverage and CoverageBenefit test data in your local database – it generates the data from existing Election/ElectionBenefit records, so the BERT sample data needs to be populated as a prerequisite.</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="period start/end dates all periods that have a start and end date, will be inclusive.
+        <div class="card-item" data-search="get dependents service url: subscriber/rest/dependents
 
-the start date is the first effective date of the period.
-the end date is the last effective date of the period.
+this service will return the list of currently registered dependents for the logged in subscriber, providing the data that is currently displayed in the jdms ui.
 
-for example a lwop start date is the first day that the employee is not at work and the end date is the last date that the employee is not at work.
-">
+this service will return an array of json objects with the following properties:
+
+- name
+- status (will be either verified, enrollment pending, changes pending or terminated)
+- relationship
+- birthdate (string in mm/dd/yyyy format)
+- startdate (string in mm/dd/yyyy format)
+- enddate (nullable string in mm/dd/yyyy format)
+
+we will likely want to add start date and end date to this, but for now, per drb feedback in the demo, we should start be displaying things similarly to how they show up in jdms.
+
+here is a screenshot example:
+
+![image.png](https://trello.com/1/cards/65f212a08c738a37fcfcf471/attachments/65f2146936c1d7367f63622b/download/image.png)
+
+the source code for this existing ui application is in bitbucket and can be reviewed to see the colors for the different status (we don’t need to mimic the exact look and feel, but should probably be consistent with how we color the 4 different status types that we’ll see).
+
+the source for the individual components displayed above should be accessible here:
+
+[http://doadrbjnu-bit.soa.alaska.gov:7990/projects/dms/repos/dms-ui/browse/src/components/public/member/memberdependentitem.js](http://doadrbjnu-bit.soa.alaska.gov:7990/projects/dms/repos/dms-ui/browse/src/components/public/member/memberdependentitem.js "‌")
+
+also, the `status` component that is used by that component should be a helpful reference.  the main css styles are stored here:
+
+[http://doadrbjnu-bit.soa.alaska.gov:7990/projects/dms/repos/dms-ui/browse/src/styles/styles.scss](http://doadrbjnu-bit.soa.alaska.gov:7990/projects/dms/repos/dms-ui/browse/src/styles/styles.scss "‌")">
           <h2 class="card-header">
             <span class="card-number">1.11</span>
-            <a href="https://trello.com/c/GzG6BlWo/213-period-start-end-dates" target="_blank" title="View in Trello" class="card-title">Period Start/End Dates</a>
+            <a href="https://trello.com/c/tcUZz1E5/504-get-dependents-service" target="_blank" title="View in Trello" class="card-title">Get Dependents Service</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#213</span>
+            <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#504</span>
           </div>
           <div class="card-content">
-            <p>All periods that have a start and end date, will be inclusive.</p><p>The start date is the first effective date of the period.<br>The end date is the last effective date of the period.</p><p>For example a LWOP start date is the first day that the employee is NOT at work and the end date is the last date that the employee is NOT at work.<br>
+            <p>URL: subscriber/rest/dependents</p><p>This service will return the list of currently registered dependents for the logged in subscriber, providing the data that is currently displayed in the JDMS UI.</p><p>This service will return an array of JSON Objects with the following properties:</p><p>- name<br>- status (will be either Verified, Enrollment Pending, Changes Pending or Terminated)<br>- relationship<br>- birthDate (string in MM/DD/YYYY format)<br>- startDate (string in MM/DD/YYYY format)<br>- endDate (nullable string in MM/DD/YYYY format)</p><p>We will likely want to add start date and end date to this, but for now, per DRB feedback in the demo, we should start be displaying things similarly to how they show up in JDMS.</p><p>Here is a screenshot example:</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/65f212a08c738a37fcfcf471/attachments/65f2146936c1d7367f63622b/download/image.png" alt="image.png" class="card-image" loading="lazy"><br>      <div class="image-caption">image.png</div><br>    </div><p>The source code for this existing UI application is in Bitbucket and can be reviewed to see the colors for the different status (we don’t need to mimic the exact look and feel, but should probably be consistent with how we color the 4 different status types that we’ll see).</p><p>The source for the individual components displayed above should be accessible here:</p><p>[http://doadrbjnu-bit.soa.alaska.gov:7990/projects/DMS/repos/dms-ui/browse/src/components/public/member/MemberDependentItem.js](http://doadrbjnu-bit.soa.alaska.gov:7990/projects/DMS/repos/dms-ui/browse/src/components/public/member/MemberDependentItem.js "‌")</p><p>Also, the <code class="inline-code">Status</code> component that is used by that component should be a helpful reference.  The main CSS styles are stored here:</p><p>[http://doadrbjnu-bit.soa.alaska.gov:7990/projects/DMS/repos/dms-ui/browse/src/styles/styles.scss](http://doadrbjnu-bit.soa.alaska.gov:7990/projects/DMS/repos/dms-ui/browse/src/styles/styles.scss "‌")</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="business day definition for purposes of rules involving cost and coverage and the first of the month, most definitions specify the first business day of the month.
+        <div class="card-item" data-search="accept terms endpoint post request to: rest/subscriber-account/terms
 
-the first business day of the month is normally the first day of the month unless:
+payload should be:
 
-- the first day is a weekend day (saturday or sunday) in which case the first business day will be monday.
-- the first day of the month is a holiday in which case the first business day will be the next non-weekend day.
-">
+- subscriberaccountid (number)
+- termsaccepted (boolean)">
           <h2 class="card-header">
             <span class="card-number">1.12</span>
-            <a href="https://trello.com/c/B9LpDL0c/248-business-day-definition" target="_blank" title="View in Trello" class="card-title">Business Day Definition</a>
+            <a href="https://trello.com/c/7QvelpnV/463-accept-terms-endpoint" target="_blank" title="View in Trello" class="card-title">Accept Terms Endpoint</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#248</span>
+            <span class="label" style="background-color: #999">Subscriber App</span>
+            <span class="card-id">#463</span>
           </div>
           <div class="card-content">
-            <p>For purposes of rules involving cost and coverage and the first of the month, most definitions specify the first business day of the month.</p><p>The first business day of the month is normally the first day of the month unless:</p><p>- The first day is a weekend day (Saturday or Sunday) in which case the first business day will be Monday.<br>- The first day of the month is a Holiday in which case the first business day will be the next non-weekend day.<br>
+            <p>POST request to: rest/subscriber-account/terms</p><p>Payload should be:</p><p>- subscriberAccountId (number)<br>- termsAccepted (boolean)</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="benefit eligibility, election, coverage and cost lifecycles # overview
+        <div class="card-item" data-search="admin coverage endpoint this card can be used to document the rest endpoint called by the admin ui to retrieve the coverage/coveragechoice data for display in the coverage tab.
 
-the system will track the periods of eligibility, election, coverage and costs for benefits. the overarching period is eligibility. below that is the election period. finally, under the election period are the cost and coverage periods.
+## status column
 
-![image.png](https://trello.com/1/cards/5f4ebccafcbb2137daf5014a/attachments/68925968559d598419a12141/download/image.png)
+the backend should return the appropriate string for display in the status column based on the following logic:
 
-the following is the lifecycle.
+- if there is a coverage record, then return “active”
+- otherwise, there is just a coveragechoice record, so look at the coveragechoicestatusid
+  - if it is `2 - approved by staff` then return “approved, but pending employment data”
+  - if it is `3 - staff approval not needed` then return “pending employment data”
+  - else, return the `title` column from the coveragechoicestatus table
 
-![image.png](https://trello.com/1/cards/5f4ebccafcbb2137daf5014a/attachments/68925977dd57858d28a2b721/download/image.png)">
+## source column
+
+the backend should return the appropriate string for display in the source column based on the following logic:
+
+- if there is a coverage record, then use the coveragesourceid and return the `title` column for the appropriate record in the coveragesource table
+- otherwise, there is just a coveragechoice record, so use the coveragechoicesourceid and then return the following string:
+  - “coverage choice - `[title]`" where `[title]` should be replaced with `title` column for the matching record in the coveragechoicesource table">
           <h2 class="card-header">
             <span class="card-number">1.13</span>
-            <a href="https://trello.com/c/CZiWbIo8/5-benefit-eligibility-election-coverage-and-cost-lifecycles" target="_blank" title="View in Trello" class="card-title">Benefit Eligibility, Election, Coverage and Cost Lifecycles</a>
+            <a href="https://trello.com/c/cgaTEHuY/547-admin-coverage-endpoint" target="_blank" title="View in Trello" class="card-title">Admin Coverage Endpoint</a>
           </h2>
           <div class="card-meta">
-            
-            <span class="card-id">#5</span>
+            <span class="label" style="background-color: #999">Admin App</span>
+            <span class="card-id">#547</span>
           </div>
           <div class="card-content">
-            <h3>Overview</h3><p>The system will track the periods of eligibility, election, coverage and costs for benefits. The overarching period is eligibility. Below that is the election period. Finally, under the election period are the cost and coverage periods.</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f4ebccafcbb2137daf5014a/attachments/68925968559d598419a12141/download/image.png" alt="image.png" class="card-image" loading="lazy"><br>      <div class="image-caption">image.png</div><br>    </div><p>The following is the lifecycle.</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f4ebccafcbb2137daf5014a/attachments/68925977dd57858d28a2b721/download/image.png" alt="image.png" class="card-image" loading="lazy"><br>      <div class="image-caption">image.png</div><br>    </div>
+            <p>This card can be used to document the REST endpoint called by the Admin UI to retrieve the Coverage/CoverageChoice data for display in the Coverage tab.</p><h3>Status Column</h3><p>The backend should return the appropriate string for display in the Status column based on the following logic:</p><p>- If there is a Coverage record, then return “Active”<br>- Otherwise, there is just a CoverageChoice record, so look at the CoverageChoiceStatusId<br>  - If it is <code class="inline-code">2 - Approved by Staff</code> then return “Approved, but Pending Employment Data”<br>  - If it is <code class="inline-code">3 - Staff Approval Not Needed</code> then return “Pending Employment Data”<br>  - Else, return the <code class="inline-code">title</code> column from the CoverageChoiceStatus table</p><h3>Source Column</h3><p>The backend should return the appropriate string for display in the Source column based on the following logic:</p><p>- If there is a Coverage record, then use the CoverageSourceId and return the <code class="inline-code">title</code> column for the appropriate record in the CoverageSource table<br>- Otherwise, there is just a CoverageChoice record, so use the CoverageChoiceSourceId and then return the following string:<br>  - “Coverage Choice - <code class="inline-code">[title]</code>" where <code class="inline-code">[title]</code> should be replaced with <code class="inline-code">title</code> column for the matching record in the CoverageChoiceSource table</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="election startup notes when an employee is hired, a new election is created with a start date based on the 31st day rule.
+        <div class="card-item" data-search="admin update staff notes endpoint url: rest/coverage-choice/staff-notes/{coveragechoiceid}
 
-a coverage gap is also created with the hire date as the start date and the 30th day as the end date.
+this endpoint accepts a put request, with a path parameter representing the id of the coverage choice whose staff notes should be revised, as well as a coverageitem object which includes the new staff notes value.
 
-during hins processing, the probation period may change because of an lwop. in that case, the election start date and the gap end date are adjusted.">
+after updating the staff notes of a coverage on the frontend and saving, the method will be invoked passing the coveragechoiceid of that coverage to the backend, with the coverage object itself (which conforms to the coverageitem) interface in the body of the request
+
+the method does not return a value">
           <h2 class="card-header">
             <span class="card-number">1.14</span>
-            <a href="https://trello.com/c/rYUtFvdW/188-election-startup-notes" target="_blank" title="View in Trello" class="card-title">Election Startup Notes</a>
+            <a href="https://trello.com/c/6w3MOMIy/609-admin-update-staff-notes-endpoint" target="_blank" title="View in Trello" class="card-title">Admin Update Staff Notes Endpoint</a>
           </h2>
           <div class="card-meta">
             
-            <span class="card-id">#188</span>
+            <span class="card-id">#609</span>
           </div>
           <div class="card-content">
-            <p>When an employee is hired, a new election is created with a start date based on the 31st day rule.</p><p>A coverage gap is also created with the hire date as the start date and the 30th day as the end date.</p><p>During HINS processing, the probation period may change because of an LWOP. In that case, the election start date and the gap end date are adjusted.</p>
+            <p>URL: rest/coverage-choice/staff-notes/{coverageChoiceId}</p><p>This endpoint accepts a PUT request, with a path parameter representing the id of the coverage choice whose staff notes should be revised, as well as a CoverageItem object which includes the new staff notes value.</p><p>After updating the staff notes of a coverage on the frontend and saving, the method will be invoked passing the coverageChoiceId of that coverage to the backend, with the coverage object itself (which conforms to the CoverageItem) interface in the body of the request</p><p>The method does not return a value</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="lwop - same month lwop begins and ends in same month
----
+        <div class="card-item" data-search="admin approve coverage choice endpoint url: rest/coverage-choice/approve/{coveragechoiceid}
 
-![lwop case 1](https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfaca910ab37f90d0280/download/lwop_case_1.png)
+this endpoint accepts a put request, with a path parameter representing the id of the coverage choice to be approved. the body of the request is a nullable object with the following interface
 
-**description:** participant is health eligible and enrolled on jun 1st, starts lwop jul 15th and ends/returns to work jul 20th
+```
+string lookbackstartdate; (mm/dd/yyyy formatted)
+string changestartdate; (mm/dd/yyyy formatted)
+boolean movecoveragestartdate;
+```
 
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	jun 1st and jul 1st are business days
-
-**postconditions:** 
-1.	participant’s coverage is unaffected
-2.	ee/er cost obligation is unaffected
-
-
-lwop ends on 1st of following month
----
-
-![lwop case 2](https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfbb80bcf73aef891663/download/lwop_case_2.png)
-
-**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15th and ends/returns to work jul 1st
-
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	jun 1st and jul 1st are business days
-
-**postconditions:** 
-1.	participant’s coverage is unaffected
-2.	ee/er cost obligation is unaffected
-
-lwop begins 1st business day of month
----
-
-![lwop case 4](https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfda33fd89177879732c/download/lwop_case_4.png)
-
-**description:** participant is health eligible and enrolled on jun 1st and starts lwop jul 1st and ends/returns to work on jul 15th
-
-**primary actor:** participant	
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	jun 1st and jul 1st are business days
-
-**postconditions:**
-1.	participant’s coverage ends after jun 30th
-2.	participant’s coverage resumes on jul 15th
-3.	ee/er cost obligation includes jun but not jul
-
-
-multiple lwop in same month
----
-
-![lwop case 6](https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfe0f23aa470a2af7182/download/lwop_case_6.png)
-
-**description:** participant is health eligible and enrolled jun 1st, starts lwop jul 2nd, ends lwop/returns to work on jul 7th and then begins lwop again on jun 20th and ends lwop/returns to work again on jul 31st
-
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	jun 1st and jul 1st are business days
-
-**postconditions:**
-1.	participant’s coverage is unaffected
-2.	ee/er cost obligation is unaffected">
+to be clear, if no body is present in the request, the method will be invoked successfully. if there is a body in the request, all three fields should be present on it.
+the method does not return a value">
           <h2 class="card-header">
             <span class="card-number">1.15</span>
-            <a href="https://trello.com/c/1URtfMOK/16-lwop-same-month" target="_blank" title="View in Trello" class="card-title">LWOP - Same month</a>
+            <a href="https://trello.com/c/0KKWws4x/610-admin-approve-coverage-choice-endpoint" target="_blank" title="View in Trello" class="card-title">Admin Approve Coverage Choice Endpoint</a>
           </h2>
           <div class="card-meta">
             
-            <span class="card-id">#16</span>
+            <span class="card-id">#610</span>
           </div>
           <div class="card-content">
-            <p>LWOP Begins and Ends in Same Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfaca910ab37f90d0280/download/LWOP_Case_1.png" alt="LWOP Case 1" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 1</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jul 15th and ends/returns to work Jul 20th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage is unaffected<br>2.	EE/ER Cost Obligation is unaffected</p><p><br>LWOP Ends on 1st of Following Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfbb80bcf73aef891663/download/LWOP_Case_2.png" alt="LWOP Case 2" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 2</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15th and ends/returns to work Jul 1st</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage is unaffected<br>2.	EE/ER Cost Obligation is unaffected</p><p>LWOP Begins 1st Business Day of Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfda33fd89177879732c/download/LWOP_Case_4.png" alt="LWOP Case 4" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 4</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st and starts LWOP Jul 1st and ends/returns to work on Jul 15th</p><p><strong>Primary Actor:</strong> Participant	</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage ends after Jun 30th<br>2.	Participant’s coverage resumes on Jul 15th<br>3.	EE/ER Cost Obligation includes Jun but not Jul</p><p><br>Multiple LWOP in Same Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb04d0033d781e8dbb24e/attachments/5f5bbfe0f23aa470a2af7182/download/LWOP_Case_6.png" alt="LWOP Case 6" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 6</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st, starts LWOP Jul 2nd, ends LWOP/returns to work on Jul 7th and then begins LWOP again on Jun 20th and ends LWOP/returns to work again on Jul 31st</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage is unaffected<br>2.	EE/ER Cost Obligation is unaffected</p>
+            <p>URL: rest/coverage-choice/approve/{coverageChoiceId}</p><p>This endpoint accepts a PUT request, with a path parameter representing the id of the coverage choice to be approved. The body of the request is a nullable object with the following interface</p><p><pre class="code-block"><code><br>String lookbackStartDate; (MM/DD/YYYY formatted)<br>String changeStartDate; (MM/DD/YYYY formatted)<br>Boolean moveCoverageStartDate;<br></code></pre></p><p>To be clear, if no body is present in the request, the method will be invoked successfully. If there is a body in the request, all three fields should be present on it.<br>The method does not return a value</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="lwop - different months lwop crosses the 1st of the month
----
+        <div class="card-item" data-search="admin reject coverage choice endpoint url: rest/coverage-choice/reject/{coveragechoiceid}
 
-![lwop case 3](https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc34681e0303b19667fae/download/lwop_case_3.png)
+this endpoint accepts a put request, with a path parameter representing the id of the coverage choice to be rejected. no additional parameters are supplied.
 
-**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15th and ends/returns to work on jul 15th
-
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	jun 1st and jul 1st are business days
-
-**postconditions:** 
-1.	participant’s coverage ends after jun 30th
-2.	participant’s coverage resumes on jul 15th
-3.	participant has no coverage between jul 1st and jul 14th
-4.	ee/er cost obligation includes jun but not jul
-
-lwop on 1st business day of month and again within that month
----
-
-![lwop case 5](https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc34c5787f74a084113b8/download/lwop_case_5.png)
-
-**description:** participant is health eligible and enrolled jun 1st, starts lwop jun 15th, ends lwop/returns to work on jul 5th, then begins a subsequent lwop segment on jul 7th and ends lwop/returns to work again on jul 20th
-
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	jun 1st and jul 1st are business days
-
-**postconditions:**
-1.	participant’s coverage ends after jun 30th
-2.	participant’s coverage resumes jul 5th and ends again after jul 6th
-3.	participant’s coverage resumes jul 20th
-4.	ee/er cost obligation includes jun but not jul
-
-1st business day of month is holiday (lwop ends on first actual business day)
----
-
-![lwop case 7](https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc351e243be21a45b50e5/download/lwop_case_7.png)
-
-**description:** participant is health eligible and enrolled dec 1st, starts lwop dec 15th, ends lwop/returns to work on jan 2nd (first business day after the jan 1st holiday)
-
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on dec 1st
-2.	jan 1st is a holiday
-3.	health enrollment/eligibility date is calculated using first business day of month after holiday
-a.	jan 2nd is the first business day on the month (e.g. jan 1st is a monday and jan 2nd is a tuesday)
-
-**postconditions:**
-1.	participant’s coverage is unaffected
-2.	ee/er cost obligation is unaffected
-
-1st business day of month is holiday (lwop does not end on first actual business day)
----
-
-![lwop case 8](https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc3571c0a1a89059d1269/download/lwop_case_8.png)
-
-**description:** participant is health eligible and enrolled dec 1st, starts lwop dec 15th, ends lwop/returns to work on jan 3rd
-
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible or enrolled in health benefits on dec 1st
-2.	jan 1st is a holiday
-3.	jan 3rd is a business day
-4.	health enrollment/eligibility date is calculated using first business day of month after holiday
-a.	jan 2nd is the first business day on the month (e.g. jan 1st is a monday and jan 2nd is a tuesday)
-
-**postconditions:**
-1.	participant’s coverage ends after dec. 31st and resumes jan 3rd
-2.	ee/er cost obligation includes dec but not jan">
+the method does not return a value">
           <h2 class="card-header">
             <span class="card-number">1.16</span>
-            <a href="https://trello.com/c/XWIb10My/17-lwop-different-months" target="_blank" title="View in Trello" class="card-title">LWOP - Different months</a>
+            <a href="https://trello.com/c/xlatOMJ3/611-admin-reject-coverage-choice-endpoint" target="_blank" title="View in Trello" class="card-title">Admin Reject Coverage Choice Endpoint</a>
           </h2>
           <div class="card-meta">
             
-            <span class="card-id">#17</span>
+            <span class="card-id">#611</span>
           </div>
           <div class="card-content">
-            <p>LWOP Crosses the 1st of the Month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc34681e0303b19667fae/download/LWOP_Case_3.png" alt="LWOP Case 3" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 3</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15th and ends/returns to work on Jul 15th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage ends after Jun 30th<br>2.	Participant’s coverage resumes on Jul 15th<br>3.	Participant has no coverage between Jul 1st and Jul 14th<br>4.	EE/ER Cost Obligation includes Jun but not Jul</p><p>LWOP on 1st Business Day of Month and again within that month<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc34c5787f74a084113b8/download/LWOP_Case_5.png" alt="LWOP Case 5" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 5</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st, starts LWOP Jun 15th, ends LWOP/returns to work on Jul 5th, then begins a subsequent LWOP segment on Jul 7th and ends LWOP/returns to work again on Jul 20th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage ends after Jun 30th<br>2.	Participant’s coverage resumes Jul 5th and ends again after Jul 6th<br>3.	Participant’s coverage resumes Jul 20th<br>4.	EE/ER Cost Obligation includes Jun but not Jul</p><p>1st Business Day of Month is Holiday (LWOP ends on first actual business day)<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc351e243be21a45b50e5/download/LWOP_Case_7.png" alt="LWOP Case 7" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 7</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Dec 1st, starts LWOP Dec 15th, ends LWOP/returns to work on Jan 2nd (first business day after the Jan 1st Holiday)</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Dec 1st<br>2.	Jan 1st is a holiday<br>3.	Health Enrollment/Eligibility date is calculated using first business day of month after holiday<br>a.	Jan 2nd is the first business day on the month (e.g. Jan 1st is a Monday and Jan 2nd is a Tuesday)</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage is unaffected<br>2.	EE/ER Cost Obligation is unaffected</p><p>1st Business Day of Month is Holiday (LWOP does not end on first actual business day)<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0bfa4902561b0f67953/attachments/5f5bc3571c0a1a89059d1269/download/LWOP_Case_8.png" alt="LWOP Case 8" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 8</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Dec 1st, starts LWOP Dec 15th, ends LWOP/returns to work on Jan 3rd</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible or enrolled in health benefits on Dec 1st<br>2.	Jan 1st is a holiday<br>3.	Jan 3rd is a business day<br>4.	Health Enrollment/Eligibility date is calculated using first business day of month after holiday<br>a.	Jan 2nd is the first business day on the month (e.g. Jan 1st is a Monday and Jan 2nd is a Tuesday)</p><p><strong>Postconditions:</strong><br>1.	Participant’s coverage ends after Dec. 31st and resumes Jan 3rd<br>2.	EE/ER Cost Obligation includes Dec but not Jan</p>
+            <p>URL: rest/coverage-choice/reject/{coverageChoiceId}</p><p>This endpoint accepts a PUT request, with a path parameter representing the id of the coverage choice to be rejected. No additional parameters are supplied.</p><p>The method does not return a value</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="lwop - seasonal seasonal leave where bargaining unit is not ss
----
+        <div class="card-item" data-search="admin reset coverage choice endpoint url: rest/coverage-choice/reset/{coveragechoiceid}
 
-![lwop case 9](https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc46b1860964ecd66364f/download/lwop_case_9.png)
+this endpoint accepts a put request, with a path parameter representing the id of the coverage choice to be reset (in the case of undo approval/rejection). the body of the request is a nullable object with the following interface
 
-**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15th and ends lwop/returns to work on jul 15th
+```
+string lookbackstartdate; (mm/dd/yyyy formatted)
+string changestartdate; (mm/dd/yyyy formatted)
+boolean movecoveragestartdate;
+```
 
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	participant’s bargaining unit is not ss
-3.	lwop is of type seasonal
-4.	jun 1st is a business day
-
-**postconditions:** 
-1.	participant’s coverage ends after jun 30th and resumes jul 15th
-2.	ee/er cost obligation includes jun but not jul
-
-seasonal leave where bargaining unit is ss
----
-
-![lwop case 10](https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc476cd2715268cd42ed5/download/lwop_case_10.png)
-
-**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15thand ends lwop/returns to work on jul 15th
-
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	participant’s bargaining unit is ss
-3.	lwop is of type seasonal
-4.	jun 1st and jul 1st are business days
-
-**postconditions:** 
-1.	participant’s coverage is unaffected
-2.	ee cost obligation includes jun but not jul
-3.	er cost obligation is unaffected
-
-seasonal leave where bargaining unit is ss (lwop spans three months and ends in the third month)
----
-
-![lwop case 11](https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc47dabda37585ba78bd6/download/lwop_case_11.png)
-
-**description:** participant is health eligible and enrolled on jun 1st, starts lwop jun 15th and ends lwop/returns to work aug 15th
-
-**primary actor:** participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	participant’s bargaining unit is ss
-3.	lwop is of type seasonal
-4.	jun 1st, jul 1st, and aug 1st are business days
-
-**postconditions:** 
-1.	participant’s coverage ends after jul 31st and resumes aug 15th
-2.	ee cost obligation includes jun but not jul or aug
-3.	er cost obligation includes for jun and jul but not aug">
+to be clear, if no body is present in the request, the method will be invoked successfully. if there is a body in the request, all three fields should be present on it.
+the method does not return a value">
           <h2 class="card-header">
             <span class="card-number">1.17</span>
-            <a href="https://trello.com/c/JAEn7m04/18-lwop-seasonal" target="_blank" title="View in Trello" class="card-title">LWOP - Seasonal</a>
+            <a href="https://trello.com/c/68yaaCDa/612-admin-reset-coverage-choice-endpoint" target="_blank" title="View in Trello" class="card-title">Admin Reset Coverage Choice Endpoint</a>
           </h2>
           <div class="card-meta">
             
-            <span class="card-id">#18</span>
+            <span class="card-id">#612</span>
           </div>
           <div class="card-content">
-            <p>Seasonal Leave where Bargaining Unit is Not SS<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc46b1860964ecd66364f/download/LWOP_Case_9.png" alt="LWOP Case 9" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 9</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15th and ends LWOP/returns to work on Jul 15th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Participant’s Bargaining Unit is not SS<br>3.	LWOP is of type Seasonal<br>4.	Jun 1st is a business day</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage ends after Jun 30th and resumes Jul 15th<br>2.	EE/ER Cost Obligation includes Jun but not Jul</p><p>Seasonal Leave where Bargaining Unit is SS<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc476cd2715268cd42ed5/download/LWOP_Case_10.png" alt="LWOP Case 10" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 10</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15thand ends LWOP/returns to work on Jul 15th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Participant’s Bargaining Unit is SS<br>3.	LWOP is of type Seasonal<br>4.	Jun 1st and Jul 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage is unaffected<br>2.	EE Cost Obligation includes Jun but not Jul<br>3.	ER Cost Obligation is unaffected</p><p>Seasonal Leave where Bargaining Unit is SS (LWOP spans three months and ends in the third month)<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c272806c2ad03b8450/attachments/5f5bc47dabda37585ba78bd6/download/LWOP_Case_11.png" alt="LWOP Case 11" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 11</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled on Jun 1st, starts LWOP Jun 15th and ends LWOP/returns to work Aug 15th</p><p><strong>Primary Actor:</strong> Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Participant’s Bargaining Unit is SS<br>3.	LWOP is of type Seasonal<br>4.	Jun 1st, Jul 1st, and Aug 1st are business days</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage ends after Jul 31st and resumes Aug 15th<br>2.	EE Cost Obligation includes Jun but not Jul or Aug<br>3.	ER Cost Obligation includes for Jun and Jul but not Aug</p>
+            <p>URL: rest/coverage-choice/reset/{coverageChoiceId}</p><p>This endpoint accepts a PUT request, with a path parameter representing the id of the coverage choice to be reset (in the case of undo approval/rejection). The body of the request is a nullable object with the following interface</p><p><pre class="code-block"><code><br>String lookbackStartDate; (MM/DD/YYYY formatted)<br>String changeStartDate; (MM/DD/YYYY formatted)<br>Boolean moveCoverageStartDate;<br></code></pre></p><p>To be clear, if no body is present in the request, the method will be invoked successfully. If there is a body in the request, all three fields should be present on it.<br>The method does not return a value</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="lwop - military military leave with userra
----
+        <div class="card-item" data-search="admin undelete coverage choice endpoint url: rest/coverage-choice/undelete/{coveragechoiceid}
 
-![lwop case 12](https://trello.com/1/cards/5f5bb0c67fc4560d0772f045/attachments/5f5bc528ba65591bc355ab13/download/lwop_case_12.png)
+this endpoint accepts a put request, with a path parameter representing the id of the coverage choice to be undeleted. the body of the request is a nullable object with the following interface
 
-**description:** participant is health eligible and enrolled jun 1st and starts lwop (military leave) jun 15th
+```
+string lookbackstartdate; (mm/dd/yyyy formatted)
+string changestartdate; (mm/dd/yyyy formatted)
+boolean movecoveragestartdate;
+```
 
-**primary actor:** military participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	jun 1st is a business day
-3.	lwop type is military leave
-4.	participant has elected to use userra
-
-**postconditions:** 
-1.	participant is covered until end of military leave or for 24 months, whichever occurs first
-2.	ee/er cost obligation is until end of military leave or for 24 months, whichever occurs first
-a.	ee cost obligation is paid via check and not payroll deduction
-
-military leave without userra
----
-
-![lwop case 13](https://trello.com/1/cards/5f5bb0c67fc4560d0772f045/attachments/5f5bc52f5e4d1f5f60f2465d/download/lwop_case_13.png)
-
-**description:** participant is health eligible and enrolled jun 1st and starts lwop (military leave) jun 15th
-
-**primary actor:** military participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	jun 1st is a business day
-3.	lwop type is military leave
-4.	participant has opted out of userra
-
-**postconditions:** 
-1.	participant’s coverage ends after jun 30th
-2.	ee/er cost obligation ends after jun">
+to be clear, if no body is present in the request, the method will be invoked successfully. if there is a body in the request, all three fields should be present on it.
+the method does not return a value">
           <h2 class="card-header">
             <span class="card-number">1.18</span>
-            <a href="https://trello.com/c/WE0gXeKB/19-lwop-military" target="_blank" title="View in Trello" class="card-title">LWOP - Military</a>
+            <a href="https://trello.com/c/1QjSg1g2/613-admin-undelete-coverage-choice-endpoint" target="_blank" title="View in Trello" class="card-title">Admin Undelete Coverage Choice Endpoint</a>
           </h2>
           <div class="card-meta">
             
-            <span class="card-id">#19</span>
+            <span class="card-id">#613</span>
           </div>
           <div class="card-content">
-            <p>Military Leave with USERRA<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c67fc4560d0772f045/attachments/5f5bc528ba65591bc355ab13/download/LWOP_Case_12.png" alt="LWOP Case 12" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 12</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st and starts LWOP (Military Leave) Jun 15th</p><p><strong>Primary Actor:</strong> Military Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st is a business day<br>3.	LWOP type is Military Leave<br>4.	Participant has elected to use USERRA</p><p><strong>Postconditions:</strong> <br>1.	Participant is covered until end of Military Leave or for 24 months, whichever occurs first<br>2.	EE/ER Cost Obligation is until end of Military Leave or for 24 months, whichever occurs first<br>a.	EE Cost Obligation is paid via check and not payroll deduction</p><p>Military Leave without USERRA<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0c67fc4560d0772f045/attachments/5f5bc52f5e4d1f5f60f2465d/download/LWOP_Case_13.png" alt="LWOP Case 13" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 13</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st and starts LWOP (Military Leave) Jun 15th</p><p><strong>Primary Actor:</strong> Military Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st is a business day<br>3.	LWOP type is Military Leave<br>4.	Participant has opted out of USERRA</p><p><strong>Postconditions:</strong> <br>1.	Participant’s coverage ends after Jun 30th<br>2.	EE/ER Cost Obligation ends after Jun</p>
+            <p>URL: rest/coverage-choice/undelete/{coverageChoiceId}</p><p>This endpoint accepts a PUT request, with a path parameter representing the id of the coverage choice to be undeleted. The body of the request is a nullable object with the following interface</p><p><pre class="code-block"><code><br>String lookbackStartDate; (MM/DD/YYYY formatted)<br>String changeStartDate; (MM/DD/YYYY formatted)<br>Boolean moveCoverageStartDate;<br></code></pre></p><p>To be clear, if no body is present in the request, the method will be invoked successfully. If there is a body in the request, all three fields should be present on it.<br>The method does not return a value</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="lwop - family family leave
----
+        <div class="card-item" data-search="admin delete coverage choice endpoint url: rest/coverage-choice/delete/{coveragechoiceid}
 
-![lwop case 14](https://trello.com/1/cards/5f5bb0ca030c3a26acd688f4/attachments/5f5bc586aa2bdf24df26fae7/download/lwop_case_14.png)
+this endpoint accepts a put request, with a path parameter representing the id of the coverage choice to be deleted. the body of the request is a nullable object with the following interface
 
-**description:** participant is health eligible and enrolled jun 1st and starts lwop (fmla) jun 15th
+```
+string lookbackstartdate; (mm/dd/yyyy formatted)
+string changestartdate; (mm/dd/yyyy formatted)
+boolean movecoveragestartdate;
+```
 
-**primary actor:** family leave participant
-
-**preconditions:**
-1.	participant is health eligible and enrolled in health benefits on jun 1st
-2.	jun 1st is a business day
-3.	lwop type is fmla
-4.	participant has elected to use fmla
-
-**postconditions:** 
-1.	participant is covered until end of family leave or for 12 months, whichever occurs first
-2.	ee/er cost obligation is until end of family leave or for 12 months, whichever occurs first
-a.	ee cost obligation is paid via check and not payroll deduction">
+to be clear, if no body is present in the request, the method will be invoked successfully. if there is a body in the request, all three fields should be present on it.
+the method does not return a value">
           <h2 class="card-header">
             <span class="card-number">1.19</span>
-            <a href="https://trello.com/c/9eIfGEI7/20-lwop-family" target="_blank" title="View in Trello" class="card-title">LWOP - Family</a>
+            <a href="https://trello.com/c/d5a3WvgZ/614-admin-delete-coverage-choice-endpoint" target="_blank" title="View in Trello" class="card-title">Admin Delete Coverage Choice Endpoint</a>
           </h2>
           <div class="card-meta">
             
-            <span class="card-id">#20</span>
+            <span class="card-id">#614</span>
           </div>
           <div class="card-content">
-            <p>Family Leave<br>---</p><div class="embedded-image"><br>      <img src="https://trello.com/1/cards/5f5bb0ca030c3a26acd688f4/attachments/5f5bc586aa2bdf24df26fae7/download/LWOP_Case_14.png" alt="LWOP Case 14" class="card-image" loading="lazy"><br>      <div class="image-caption">LWOP Case 14</div><br>    </div><p><strong>Description:</strong> Participant is health eligible and enrolled Jun 1st and starts LWOP (FMLA) Jun 15th</p><p><strong>Primary Actor:</strong> Family Leave Participant</p><p><strong>Preconditions:</strong><br>1.	Participant is health eligible and enrolled in health benefits on Jun 1st<br>2.	Jun 1st is a business day<br>3.	LWOP type is FMLA<br>4.	Participant has elected to use FMLA</p><p><strong>Postconditions:</strong> <br>1.	Participant is covered until end of Family Leave or for 12 months, whichever occurs first<br>2.	EE/ER Cost Obligation is until end of Family Leave or for 12 months, whichever occurs first<br>a.	EE Cost Obligation is paid via check and not payroll deduction</p>
+            <p>URL: rest/coverage-choice/delete/{coverageChoiceId}</p><p>This endpoint accepts a PUT request, with a path parameter representing the id of the coverage choice to be deleted. The body of the request is a nullable object with the following interface</p><p><pre class="code-block"><code><br>String lookbackStartDate; (MM/DD/YYYY formatted)<br>String changeStartDate; (MM/DD/YYYY formatted)<br>Boolean moveCoverageStartDate;<br></code></pre></p><p>To be clear, if no body is present in the request, the method will be invoked successfully. If there is a body in the request, all three fields should be present on it.<br>The method does not return a value</p>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="coverage begins ## new employees
+        <div class="card-item" data-search="admin get coverage regen params endpoint url: rest/coverage-choice/regen-params
 
-**full-time:**
+this endpoint accepts a post request. the body of the request is a nullable object with the following interface
 
-coverage begins on 31st consecutive day that employee is in pay status, provided no lwop. employee must elect to waive coverage.
+```
+string coveragechoiceid; (nullable)
+string eventdate; (mm/dd/yyyy formatted, nullable)
+```
 
-in event of lwop, coverage begins on 31st consecutive day that employee is in pay status from end date of lwop.
+either of these fields can be nullable. in other words, the frontend can pass nothing in the request body, or an object with either of these fields, both, or neither.
 
-_alaskacare booklet states: "...in no event will your waiting period be longer than 90 calendar days, if you are at work and in pay status on such date." is that regardless of length of lwop during first 90 days?_
+the method returns a value with the following interface
 
-a: 90 regardless of lwop status
-
-**part-time:**
-
-provided employee has enrolled in coverage during first 30 days of employment, coverage begins on 31st consecutive day that employee is in pay status.
-
-_what about lwop_?
-
-## term/rehire
-
-if you are are rehired within 7 days from end date of coverage, your coverage resumes the day you return to work. if not, you follow the new employee process.
-
-notes from 8/6 requirements meeting:
-
-term/rehire
-
-- generally, a termination followed by a rehire triggers the 31-day waiting period again
-- _exception_: if a member is terminated and then rehired in benefits-eligible position 7 calendar days or fewer from the end of coverage in prior position, then coverage resumes **immediately** upon rehire (no waiting period)
-  - **example 1**: member has health coverage, terminates on 8/7/2020. member is rehired on 9/7/2020. coverage ended on 8/31/2020, so the rehire is within the 7-day window and coverage starts immediately on 9/7/2020.
-  - **example 2**: same facts as example 1, except that the rehire date is 9/8/2020 instead. now, member is outside the 7-day window, so must go through waiting period again. coverage in new position will start on 10/08/2020 (assuming member is continually in pay status during waiting period).
-- this only applies to actual service terminations / separation events. for example, it does not apply to layoff, which operates the same as a normal lwop/loa event
-
-## from non-participating bu to participating bu
-
-coverage begins on first day of month after date of bargaining unit change unless employee elects to waive coverage. if change date is first of month, new coverage is effective that same day.
-
-_first business day or calendar day?_
-
-## dependents
-
-coverage of eligible dependents begins the same day that your coverage begins, provided that you have enrolled them and updated your elections to family coverage within the first 30 days of employment.
-
-newborns are automatically covered for the first 31 days after birth. after 31 days, must be enrolled according to status change rules
-
-## surviving dependents of peace officers and firefighters
-
-coverage begins the first day of the month following acknowledgement from department of public safety that surviving dependent is eligible.
-
-_first business day or calendar day?_">
+```
+	string lookbackstartdate;
+	string changestartdate;
+	yesnoindicator movecoveragestartdate;
+```">
           <h2 class="card-header">
             <span class="card-number">1.20</span>
-            <a href="https://trello.com/c/x6c8HA6j/21-coverage-begins" target="_blank" title="View in Trello" class="card-title">Coverage Begins</a>
+            <a href="https://trello.com/c/cFzRlCfH/615-admin-get-coverage-regen-params-endpoint" target="_blank" title="View in Trello" class="card-title">Admin Get Coverage Regen Params Endpoint</a>
           </h2>
           <div class="card-meta">
             
-            <span class="card-id">#21</span>
+            <span class="card-id">#615</span>
           </div>
           <div class="card-content">
-            <h3>New Employees</h3><p><strong>Full-Time:</strong></p><p>Coverage begins on 31st consecutive day that employee is in pay status, provided no LWOP. Employee must elect to waive coverage.</p><p>In event of LWOP, coverage begins on 31st consecutive day that employee is in pay status from end date of LWOP.</p><p>_AlaskaCare booklet states: "...in no event will your waiting period be longer than 90 calendar days, if you are at work and in pay status on such date." Is that regardless of length of LWOP during first 90 days?_</p><p>A: 90 regardless of LWOP status</p><p><strong>Part-Time:</strong></p><p>Provided employee has enrolled in coverage during first 30 days of employment, coverage begins on 31st consecutive day that employee is in pay status.</p><p>_What about LWOP_?</p><h3>Term/Rehire</h3><p>If you are are rehired within 7 days from end date of coverage, your coverage resumes the day you return to work. If not, you follow the New Employee process.</p><p>Notes from 8/6 Requirements meeting:</p><p>Term/Rehire</p><p>- Generally, a termination followed by a rehire triggers the 31-day waiting period again<br>- _Exception_: if a member is terminated and then rehired in benefits-eligible position 7 calendar days or fewer from the end of coverage in prior position, then coverage resumes <strong>immediately</strong> upon rehire (no waiting period)<br>  - <strong>Example 1</strong>: Member has health coverage, terminates on 8/7/2020. Member is rehired on 9/7/2020. Coverage ended on 8/31/2020, so the rehire is within the 7-day window and coverage starts immediately on 9/7/2020.<br>  - <strong>Example 2</strong>: Same facts as Example 1, except that the rehire date is 9/8/2020 instead. Now, member is outside the 7-day window, so must go through waiting period again. Coverage in new position will start on 10/08/2020 (assuming member is continually in pay status during waiting period).<br>- This only applies to actual service terminations / separation events. For example, it does not apply to Layoff, which operates the same as a normal LWOP/LOA event</p><h3>From Non-Participating BU to Participating BU</h3><p>Coverage begins on first day of month after date of bargaining unit change unless employee elects to waive coverage. If change date is first of month, new coverage is effective that same day.</p><p>_First business day or calendar day?_</p><h3>Dependents</h3><p>Coverage of eligible dependents begins the same day that your coverage begins, provided that you have enrolled them and updated your elections to family coverage within the first 30 days of employment.</p><p>Newborns are automatically covered for the first 31 days after birth. After 31 days, must be enrolled according to status change rules</p><h3>Surviving Dependents of Peace Officers and Firefighters</h3><p>Coverage begins the first day of the month following acknowledgement from Department of Public Safety that surviving dependent is eligible.</p><p>_First business day or calendar day?_</p>
+            <p>URL: rest/coverage-choice/regen-params</p><p>This endpoint accepts a POST request. The body of the request is a nullable object with the following interface</p><p><pre class="code-block"><code><br>String coverageChoiceId; (nullable)<br>String eventDate; (MM/DD/YYYY formatted, nullable)<br></code></pre></p><p>Either of these fields can be nullable. In other words, the frontend can pass nothing in the request body, or an object with either of these fields, both, or neither.</p><p>The method returns a value with the following interface</p><p><pre class="code-block"><code><br>	String lookbackStartDate;<br>	String changeStartDate;<br>	YesNoIndicator moveCoverageStartDate;<br></code></pre>
           </div>
           
         </div>
       
-        <div class="card-item" data-search="coverage ends employees
----
+        <div class="card-item" data-search="admin regenerate coverage for subscriber endpoint url: rest/coverage-choice/regen/{subscriberaccountid}
 
-1. date that plan or any benefit option under plan is terminated.
-2. date that plan or any benefit option under plan is waived.
-3. date employee dies.
-4. last day of month in which employee in pay status(active or lwop).
-5. last day of month in which employment terminated.
-6. last day of month in which hours reduced to where employee no longer eligible except in case of furlough under 2 aac 07.407
-7. last day of month in which employee moves to non-participating bu.
-8. last day of month in which any employee premium not paid.
-9. date employee joins any armed forces full-time.
-10. government shutdown, see p. 27 of alaskacare booklet
+this endpoint accepts a post request, with a path parameter representing the id of the subscriber account for whom coverage regeneration should be performed. the body of the request is a nullable object with the following interface
 
-*does it make any difference where the last day of the month falls?*
+```
+string lookbackstartdate; (mm/dd/yyyy formatted)
+string changestartdate; (mm/dd/yyyy formatted)
+boolean movecoveragestartdate;
+```
 
-*what if any of the above events happens on the 1st/31st?*
+to be clear, if no body is present in the request, the method will be invoked successfully. if there is a body in the request, all three fields should be present on it.
 
-dependents
----
-
-1. date that plan or any benefit option under the plan is terminated.
-2. date that dependent coverage under plan or plan is terminated.
-3. date that dependent coverage under plan is waived.
-4. date of divorce, in case spouse is dependent.
-5. last day of month in which child ceases to qualify as dependent.
-6. date dependent dies.
-7. date employee coverage terminated, or last day of that month in case of employee death.
-8. last day of month in which any employee premium not paid.
-9. date employee terminates coverage for dependents.
-
-continued coverage
----
-
-to research, applies under cobra, userra, and fmla.
-
-surviving dependents of peace officers and firefighters
----
-
-1. date that plan or any benefit option under the plan is terminated.
-2. date that dependent coverage under plan or plan is terminated.
-5. last day of month in which dependent ceases to qualify.">
+the method does not return a value.">
           <h2 class="card-header">
             <span class="card-number">1.21</span>
-            <a href="https://trello.com/c/vXSCC154/22-coverage-ends" target="_blank" title="View in Trello" class="card-title">Coverage Ends</a>
+            <a href="https://trello.com/c/kRoOC4un/616-admin-regenerate-coverage-for-subscriber-endpoint" target="_blank" title="View in Trello" class="card-title">Admin Regenerate Coverage For Subscriber Endpoint</a>
           </h2>
           <div class="card-meta">
             
-            <span class="card-id">#22</span>
+            <span class="card-id">#616</span>
           </div>
           <div class="card-content">
-            <p>Employees<br>---</p><p>1. Date that plan or any benefit option under plan is terminated.<br>2. Date that plan or any benefit option under plan is waived.<br>3. Date employee dies.<br>4. Last day of month in which employee in pay status(active or LWOP).<br>5. Last day of month in which employment terminated.<br>6. Last day of month in which hours reduced to where employee no longer eligible EXCEPT in case of furlough under 2 AAC 07.407<br>7. Last day of month in which employee moves to non-participating BU.<br>8. Last day of month in which any employee premium not paid.<br>9. Date employee joins any armed forces full-time.<br>10. Government shutdown, see p. 27 of AlaskaCare booklet</p><p>*Does it make any difference where the last day of the month falls?*</p><p>*What if any of the above events happens on the 1st/31st?*</p><p>Dependents<br>---</p><p>1. Date that plan or any benefit option under the plan is terminated.<br>2. Date that dependent coverage under plan or plan is terminated.<br>3. Date that dependent coverage under plan is waived.<br>4. Date of divorce, in case spouse is dependent.<br>5. Last day of month in which child ceases to qualify as dependent.<br>6. Date dependent dies.<br>7. Date employee coverage terminated, OR last day of that month in case of employee death.<br>8. Last day of month in which any employee premium not paid.<br>9. Date employee terminates coverage for dependents.</p><p>Continued Coverage<br>---</p><p>To research, applies under COBRA, USERRA, and FMLA.</p><p>Surviving Dependents of Peace Officers and Firefighters<br>---</p><p>1. Date that plan or any benefit option under the plan is terminated.<br>2. Date that dependent coverage under plan or plan is terminated.<br>5. Last day of month in which dependent ceases to qualify.</p>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="election reasons election reason
----
-```
-0	unknown
-1	newly hired employee
-2	new child (birth or adoption)
-3	death of dependent
-4	change in marital status
-5	child no longer eligible for benefit coverage
-6	spouse begins/ends employment
-7	establish/terminate same-sex partner relationship
-8	change in spouses health coverage
-9	spouse begins unpaid leave
-10	health coverage change due to bargaining unit change
-11	short-term from/to long-term/nonperm or permanent
-12	open enrollment
-13	rehire
-14	member change from/to full time/part time
-15	spouse change from/to full time/part time
-16	user override
-17	appeal
-18	benefits correction by staff
-19	return from extended unpaid leave/layoff
-20	life insurance final action
-21	finance eligibility indicator override
-99	conversion
-```
-election reason category
----
-```
-1	employment change automatic
-2	employee choice
-3	administrative override
-4	open enrollment automatic
-```
-">
-          <h2 class="card-header">
-            <span class="card-number">1.22</span>
-            <a href="https://trello.com/c/EQDx3HcZ/26-election-reasons" target="_blank" title="View in Trello" class="card-title">Election Reasons</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#26</span>
-          </div>
-          <div class="card-content">
-            <p>Election Reason<br>---<br><pre class="code-block"><code><br>0	Unknown<br>1	Newly Hired Employee<br>2	New Child (Birth or Adoption)<br>3	Death of Dependent<br>4	Change in Marital Status<br>5	Child No Longer Eligible for Benefit Coverage<br>6	Spouse Begins/Ends Employment<br>7	Establish/Terminate Same-Sex Partner Relationship<br>8	Change in Spouses Health Coverage<br>9	Spouse Begins Unpaid Leave<br>10	Health Coverage Change Due To Bargaining Unit Change<br>11	Short-Term From/To Long-Term/NonPerm or Permanent<br>12	Open Enrollment<br>13	Rehire<br>14	Member Change from/to Full Time/Part Time<br>15	Spouse Change from/to Full Time/Part Time<br>16	User Override<br>17	Appeal<br>18	Benefits Correction by Staff<br>19	Return from Extended Unpaid Leave/Layoff<br>20	Life Insurance Final Action<br>21	Finance Eligibility Indicator Override<br>99	Conversion<br></code></pre><br>Election Reason Category<br>---<br><pre class="code-block"><code><br>1	Employment Change Automatic<br>2	Employee Choice<br>3	Administrative Override<br>4	Open Enrollment Automatic<br></code></pre><br>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="iris health indicator codes iris was designed wit h a special data structure to maintain health eligibility information. this data is manually entered and is not constrained by rules.
-
-the structure caries the following elements:
-
-- employee number
-- appointment code
-- effective date
-- expiration date
-- union loc code
-- health insurance status code
-
-the following are the status codes and their meanings:
-
-- a - aca eligible
-- d - declined/waived
-- f - ft eligible
-- l - loa/inactive
-- p - pt eligible
-- s - seas comp/no hi
-- w - wait period
-- x - loss eligibility
-- z - not eligible">
-          <h2 class="card-header">
-            <span class="card-number">1.23</span>
-            <a href="https://trello.com/c/TytSsGZO/47-iris-health-indicator-codes" target="_blank" title="View in Trello" class="card-title">IRIS Health Indicator Codes</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#47</span>
-          </div>
-          <div class="card-content">
-            <p>IRIS Was designed wit h a special data structure to maintain health eligibility information. This data is manually entered and is not constrained by rules.</p><p>The structure caries the following elements:</p><p>- Employee Number<br>- Appointment Code<br>- Effective Date<br>- Expiration Date<br>- Union Loc Code<br>- Health Insurance Status Code</p><p>The following are the status codes and their meanings:</p><p>- A - ACA ELIGIBLE<br>- D - DECLINED/WAIVED<br>- F - FT ELIGIBLE<br>- L - LOA/INACTIVE<br>- P - PT ELIGIBLE<br>- S - SEAS COMP/NO HI<br>- W - WAIT PERIOD<br>- X - LOSS ELIGIBILITY<br>- Z - NOT ELIGIBLE</p>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="participation only the employees of employers who are allowed and have opted in to the various state of alaska employee health benefits will be participating in this system.">
-          <h2 class="card-header">
-            <span class="card-number">1.24</span>
-            <a href="https://trello.com/c/aqLZfLfB/71-participation" target="_blank" title="View in Trello" class="card-title">Participation</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#71</span>
-          </div>
-          <div class="card-content">
-            <p>Only the employees of employers who are allowed and have opted in to the various State of Alaska employee health benefits will be participating in this system.</p>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="employee layoff period can be laid off for up to 3 years (layoff).
-
-coverage after layoff is the same as terminated.
-
-if they return to work then....">
-          <h2 class="card-header">
-            <span class="card-number">1.25</span>
-            <a href="https://trello.com/c/eISqHGlb/88-employee-layoff-period" target="_blank" title="View in Trello" class="card-title">Employee Layoff Period</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#88</span>
-          </div>
-          <div class="card-content">
-            <p>Can be laid off for up to 3 years (Layoff).</p><p>Coverage after layoff is the same as terminated.</p><p>If they return to work then....</p>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="balance write-off after termination terminated with balance - then rehired - no collection
-
-after termination, seven days - do no write off.
-
-7 days after the end of the eligible month?
-">
-          <h2 class="card-header">
-            <span class="card-number">1.26</span>
-            <a href="https://trello.com/c/cZniPWV9/90-balance-write-off-after-termination" target="_blank" title="View in Trello" class="card-title">Balance Write-Off after Termination</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#90</span>
-          </div>
-          <div class="card-content">
-            <p>Terminated with balance - then rehired - no collection</p><p>After termination, seven days - do no write off.</p><p>7 days after the end of the eligible month?<br>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="leave without pay types leave without pay types
----
-the following are the types of leave without pay. this list contains their iris code, title and a decription.
-
-- afla - lwop afla: indicates that the person is not in pay status beginning on the given effective date. also indicates that this lwop is qualified for health care coverage under afla.
-- actlwop - active lwop: trs only
-- fmla - lwop fmla: indicates that the person is not in pay status beginning on the given effective date. also indicates that this lwop is qualified for health care coverage under fmla.
-- layoff - layoff: indicates that the employee is in layoff status as of the given effective date. this status affects the ability to cash-out sbs or deferred comp, but not per/trs/jrs/epors.
-- lwop - lwop: indicates that the person is not in pay status beginning on the given effective date.
-- mfmla - military fmla: indicates that the person is in military leave beginning on the given effective date. also indicates that this leave is qualified for health care coverage under fmla.
-- milleave - military leave: indicates that the person is in military leave beginning on the given effective date.
-- sabbtcl - sabbatical: trs only
-- snlleave - seasonal leave: indicates that the person is not in pay status beginning on the given effective date. there is an expectation that they will be returning to work when the season begins again.
-- wcomp - workers comp: indicates that the person is not in pay status beginning on the given effective date to being on workers comp leave.
-">
-          <h2 class="card-header">
-            <span class="card-number">1.27</span>
-            <a href="https://trello.com/c/qFnr6jia/133-leave-without-pay-types" target="_blank" title="View in Trello" class="card-title">Leave Without Pay Types</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#133</span>
-          </div>
-          <div class="card-content">
-            <p>Leave Without Pay Types<br>---<br>The following are the types of leave without pay. This list contains their IRIS code, title and a decription.</p><p>- AFLA - LWOP AFLA: Indicates that the person is NOT in pay status beginning on the given effective date. Also indicates that this LWOP is qualified for health care coverage under AFLA.<br>- ACTLWOP - Active LWOP: TRS Only<br>- FMLA - LWOP FMLA: Indicates that the person is NOT in pay status beginning on the given effective date. Also indicates that this LWOP is qualified for health care coverage under FMLA.<br>- LAYOFF - Layoff: Indicates that the employee is in layoff status as of the given effective date. This status affects the ability to cash-out SBS or Deferred Comp, but not PER/TRS/JRS/EPORS.<br>- LWOP - LWOP: Indicates that the person is NOT in pay status beginning on the given effective date.<br>- MFMLA - Military FMLA: Indicates that the person is in Military leave beginning on the given effective date. Also indicates that this leave is qualified for health care coverage under FMLA.<br>- MILLEAVE - Military Leave: Indicates that the person is in Military leave beginning on the given effective date.<br>- SABBTCL - Sabbatical: TRS Only<br>- SNLLEAVE - Seasonal Leave: Indicates that the person is NOT in pay status beginning on the given effective date. There is an expectation that they will be returning to work when the season begins again.<br>- WCOMP - Workers Comp: Indicates that the person is not in pay status beginning on the given effective date to being on workers comp leave.<br>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="other transaction types other transaction types
----
-the following is a list of the other transaction types.
-
-- employee/employer direct payments - these are either payments to the state by the employee (usually by a check) or payments made via a transfer of funds in the state accounting system in a transaction outside payroll. this is a credit on the account.
-- employee/employer direct refunds - these are either refunds of credit balance made to the employee from the state accounting system or refunds made via a transfer of funds in the state accounting system in a transaction outside payroll. this is a charge on the account.
-- write-off - this transaction simply writes-off an open amount for the employee or employer. these can be either positive or negative amounts. this is a credit on the account if positive, otherwise a charge on the account.
-">
-          <h2 class="card-header">
-            <span class="card-number">1.28</span>
-            <a href="https://trello.com/c/QVvUsuRh/148-other-transaction-types" target="_blank" title="View in Trello" class="card-title">Other Transaction Types</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#148</span>
-          </div>
-          <div class="card-content">
-            <p>Other Transaction Types<br>---<br>The following is a list of the other transaction types.</p><p>- Employee/Employer Direct Payments - these are either payments to the State by the employee (usually by a check) or payments made via a transfer of funds in the State accounting system in a transaction outside payroll. This is a credit on the account.<br>- Employee/Employer Direct Refunds - these are either refunds of credit balance made to the employee from the State accounting system or refunds made via a transfer of funds in the State accounting system in a transaction outside payroll. This is a charge on the account.<br>- Write-Off - this transaction simply writes-off an open amount for the employee or employer. These can be either positive or negative amounts. This is a credit on the account if positive, otherwise a charge on the account.<br>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="term/rehire -- coverage continuity term/rehire
-
-·         generally, a termination followed by a rehire triggers the 31-day waiting period again
-
-·         _exception_: if a member is terminated and then rehired in benefits-eligible position 7 calendar days or fewer from the end of coverage in prior position, then coverage resumes **immediately** upon rehire (no waiting period)
-
-o   **example 1**: member has health coverage, terminates on 8/7/2020.  member is rehired on 9/7/2020.  coverage ended on 8/31/2020, so the rehire is within the 7-day window and coverage starts immediately on 9/7/2020.
-
-o   **example 2**: same facts as example 1, except that the rehire date is 9/8/2020 instead.  now, member is outside the 7-day window, so must go through waiting period again.  coverage in new position will start on 10/08/2020 (assuming member is continually in pay status during waiting period).
-
-this only applies to actual service terminations / separation events.  for example, it does not apply to layoff, which operates the same as a normal lwop/loa event">
-          <h2 class="card-header">
-            <span class="card-number">1.29</span>
-            <a href="https://trello.com/c/jl3WflGb/324-term-rehire-coverage-continuity" target="_blank" title="View in Trello" class="card-title">Term/Rehire -- Coverage Continuity</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#324</span>
-          </div>
-          <div class="card-content">
-            <p>Term/Rehire</p><p>·         Generally, a termination followed by a rehire triggers the 31-day waiting period again</p><p>·         _Exception_: if a member is terminated and then rehired in benefits-eligible position 7 calendar days or fewer from the end of coverage in prior position, then coverage resumes <strong>immediately</strong> upon rehire (no waiting period)</p><p>o   <strong>Example 1</strong>: Member has health coverage, terminates on 8/7/2020.  Member is rehired on 9/7/2020.  Coverage ended on 8/31/2020, so the rehire is within the 7-day window and coverage starts immediately on 9/7/2020.</p><p>o   <strong>Example 2</strong>: Same facts as Example 1, except that the rehire date is 9/8/2020 instead.  Now, member is outside the 7-day window, so must go through waiting period again.  Coverage in new position will start on 10/08/2020 (assuming member is continually in pay status during waiting period).</p><p>This only applies to actual service terminations / separation events.  For example, it does not apply to Layoff, which operates the same as a normal LWOP/LOA event</p>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="mil & hfsa **question:** for an employee on fmla/mil leave, do they keep the full set of benefits (except hfsa)?  how does fmla/mil interact with hfsa? is going on fmla/mil an allowed life change event for which they may change elections (e.g. drop hfsa, change coverage level)?
-
-**answer:** bert will rely on the current elections to govern what benefit premiums are expected. drb staff will be able to update elections and terminate the hfsa election  if needed. there are some cases with fmla where payments may be delinquent. the expectation that they will be collected when the employee returns to work.">
-          <h2 class="card-header">
-            <span class="card-number">1.30</span>
-            <a href="https://trello.com/c/VbTfOCxS/361-mil-hfsa" target="_blank" title="View in Trello" class="card-title">MIL & HFSA</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#361</span>
-          </div>
-          <div class="card-content">
-            <p><strong>QUESTION:</strong> For an employee on FMLA/MIL Leave, do they keep the full set of benefits (except HFSA)?  How does FMLA/MIL interact with HFSA? Is going on FMLA/MIL an allowed life change event for which they may change elections (e.g. drop HFSA, change coverage level)?</p><p><strong>ANSWER:</strong> BERT will rely on the current Elections to govern what benefit premiums are expected. DRB staff will be able to update elections and terminate the HFSA election  if needed. There are some cases with FMLA where payments may be delinquent. The expectation that they will be collected when the employee returns to work.</p>
-          </div>
-          
-        </div>
-      
-        <div class="card-item" data-search="7 day rehire rule when rehired in following month there should be a gap in coverage if they are rehired in the month following the coverage end date even if it’s within 7 days of the coverage end date.">
-          <h2 class="card-header">
-            <span class="card-number">1.31</span>
-            <a href="https://trello.com/c/W3Kfum77/409-7-day-rehire-rule-when-rehired-in-following-month" target="_blank" title="View in Trello" class="card-title">7 day rehire rule when rehired in following month</a>
-          </h2>
-          <div class="card-meta">
-            
-            <span class="card-id">#409</span>
-          </div>
-          <div class="card-content">
-            <p>There should be a gap in coverage if they are rehired in the month following the coverage end date even if it’s within 7 days of the coverage end date.</p>
+            <p>URL: rest/coverage-choice/regen/{subscriberAccountId}</p><p>This endpoint accepts a POST request, with a path parameter representing the ID of the subscriber account for whom coverage regeneration should be performed. The body of the request is a nullable object with the following interface</p><p><pre class="code-block"><code><br>String lookbackStartDate; (MM/DD/YYYY formatted)<br>String changeStartDate; (MM/DD/YYYY formatted)<br>Boolean moveCoverageStartDate;<br></code></pre></p><p>To be clear, if no body is present in the request, the method will be invoked successfully. If there is a body in the request, all three fields should be present on it.</p><p>The method does not return a value.</p>
           </div>
           
         </div>
@@ -1743,7 +1541,7 @@ this only applies to actual service terminations / separation events.  for exam
 
     <div class="footer">
         <p>Generated from Trello Board: Health Benefits Requirements</p>
-        <p>Lists: Business Rules</p>
+        <p>Lists: Phase 5 API Reference</p>
         
     </div>
 

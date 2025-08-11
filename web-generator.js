@@ -125,7 +125,7 @@ function generateInteractiveHTML() {
         }
 
         .config-content.expanded {
-            max-height: 1000px;
+            max-height: 2000px;
             opacity: 1;
         }
 
@@ -135,6 +135,52 @@ function generateInteractiveHTML() {
 
         .form-group {
             margin-bottom: 1rem;
+        }
+
+        .board-selection-layout {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        .board-selection-column {
+            flex: 1;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .board-selection-divider {
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, #d1d5db, transparent);
+            margin: 0 1rem;
+            align-self: stretch;
+        }
+
+        .board-selection-column h4 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .board-selection-layout {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .board-selection-divider {
+                width: 100%;
+                height: 1px;
+                background: linear-gradient(to right, transparent, #d1d5db, transparent);
+                margin: 0.5rem 0;
+            }
+
+            .board-selection-column {
+                padding: 1rem;
+            }
         }
 
         .options-layout {
@@ -454,6 +500,38 @@ function generateInteractiveHTML() {
             text-align: center;
         }
 
+        .file-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgb(51,141,37);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .file-input-label:hover {
+            background: rgb(41,121,27);
+        }
+
+        .file-name {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
         @media print {
             .config-section, .generate-section, .search-section, .status-section {
                 display: none !important;
@@ -613,11 +691,28 @@ function generateInteractiveHTML() {
                     <span class="collapse-icon">▼</span>
                 </h3>
                 <div class="config-content expanded">
-                    <div class="form-group">
-                        <label for="boardSelect">Select Trello Board:</label>
-                        <select id="boardSelect">
-                            <option value="">Loading boards...</option>
-                        </select>
+                    <div class="board-selection-layout">
+                        <div class="board-selection-column">
+                            <h4>📋 Select from API</h4>
+                            <div class="form-group">
+                                <label for="boardSelect">Select Trello Board:</label>
+                                <select id="boardSelect">
+                                    <option value="">Loading boards...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="board-selection-divider"></div>
+                        <div class="board-selection-column">
+                            <h4>📁 Import JSON File</h4>
+                            <div class="form-group">
+                                <label>Or import Trello board JSON:</label>
+                                <div class="file-input-wrapper">
+                                    <input type="file" id="jsonFileInput" accept=".json" class="file-input">
+                                    <label for="jsonFileInput" class="file-input-label">Choose JSON File</label>
+                                    <span id="fileName" class="file-name"></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -709,6 +804,7 @@ function generateInteractiveHTML() {
     <script>
         // Store boards data
         let boardsData = [];
+        let importedBoardData = null;
 
         // Initialize the interface
         document.addEventListener('DOMContentLoaded', function() {
@@ -731,9 +827,32 @@ function generateInteractiveHTML() {
             // Load boards from API
             await loadBoards();
 
+            // JSON file input handler
+            const jsonFileInput = document.getElementById('jsonFileInput');
+            const fileName = document.getElementById('fileName');
+
+            jsonFileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    fileName.textContent = file.name;
+                    loadJSONFile(file);
+                    // Clear board selection when JSON is loaded
+                    boardSelect.value = '';
+                } else {
+                    fileName.textContent = '';
+                }
+            });
+
             // Board selection handler
             boardSelect.addEventListener('change', async function() {
                 const selectedBoardId = this.value;
+                if (selectedBoardId) {
+                    // Clear JSON file selection when API board is selected
+                    jsonFileInput.value = '';
+                    fileName.textContent = '';
+                    // Re-enable comments option for API boards
+                    updateCommentsOption(false);
+                }
                 await updateListSelection(selectedBoardId);
                 updateGenerateButton();
             });
@@ -747,6 +866,37 @@ function generateInteractiveHTML() {
                     updateGenerateButton();
                 }
             });
+        }
+
+        async function loadJSONFile(file) {
+            try {
+                const text = await file.text();
+                const jsonData = JSON.parse(text);
+
+                // Validate that it's a Trello board export
+                if (!jsonData.name || !jsonData.lists || !Array.isArray(jsonData.lists)) {
+                    alert('Invalid Trello board JSON format. Please ensure you exported the board correctly from Trello.');
+                    return;
+                }
+
+                importedBoardData = jsonData;
+
+                // Update the board select to show the imported board
+                const boardSelect = document.getElementById('boardSelect');
+                boardSelect.innerHTML = '<option value="">Choose a board...</option>' +
+                    '<option value="imported" data-name="' + jsonData.name + '" selected>📁 ' + jsonData.name + ' (Imported)</option>';
+
+                // Load lists from the JSON
+                await updateListSelectionFromJSON();
+                updateGenerateButton();
+
+                // Disable comments option for JSON imports since comments aren't available
+                updateCommentsOption(true);
+
+            } catch (error) {
+                console.error('Error parsing JSON file:', error);
+                alert('Error reading JSON file. Please ensure it is a valid Trello board export.');
+            }
         }
 
         async function loadBoards() {
@@ -849,6 +999,66 @@ function generateInteractiveHTML() {
             }
         }
 
+        async function updateListSelectionFromJSON() {
+            const listSelectionDiv = document.getElementById('listSelection');
+
+            if (!listSelectionDiv || !importedBoardData) {
+                console.error('listSelection element not found or no imported data');
+                return;
+            }
+
+            try {
+                // Convert JSON lists to the expected format
+                const lists = importedBoardData.lists.map(list => ({
+                    id: list.id,
+                    name: list.name
+                }));
+
+                if (lists.length > 0) {
+                    const selectAllHTML = \`
+                        <div class="checkbox-item select-all-item">
+                            <input type="checkbox" id="selectAllLists">
+                            <label for="selectAllLists"><strong>Select All Lists</strong></label>
+                        </div>
+                    \`;
+
+                    const listsHTML = lists.map(list =>
+                        \`<div class="checkbox-item">
+                            <input type="checkbox" id="list_\${list.id}" name="selectedList" value="\${list.id}" data-name="\${list.name}">
+                            <label for="list_\${list.id}">\${list.name}</label>
+                        </div>\`
+                    ).join('');
+
+                    listSelectionDiv.innerHTML = \`
+                        <div class="checkbox-group">
+                            \${selectAllHTML}
+                            \${listsHTML}
+                        </div>
+                    \`;
+
+                    // Add Select All functionality
+                    const selectAllCheckbox = document.getElementById('selectAllLists');
+                    const listCheckboxes = document.querySelectorAll('input[name="selectedList"]');
+
+                    selectAllCheckbox.addEventListener('change', function() {
+                        listCheckboxes.forEach(checkbox => {
+                            checkbox.checked = this.checked;
+                        });
+                        updateGenerateButton();
+                    });
+
+                    listCheckboxes.forEach(checkbox => {
+                        checkbox.addEventListener('change', updateGenerateButton);
+                    });
+                } else {
+                    listSelectionDiv.innerHTML = '<p style="color: #666;">No lists found in imported board</p>';
+                }
+            } catch (error) {
+                console.error('Error processing JSON lists:', error);
+                listSelectionDiv.innerHTML = '<p style="color: #e53e3e;">Error processing lists from JSON</p>';
+            }
+        }
+
         function updateGenerateButton() {
             const boardSelect = document.getElementById('boardSelect');
             const generateBtn = document.getElementById('generateBtn');
@@ -862,6 +1072,29 @@ function generateInteractiveHTML() {
             const listsSelected = document.querySelectorAll('input[name="selectedList"]:checked').length > 0;
 
             generateBtn.disabled = !(boardSelected && listsSelected);
+        }
+
+        function updateCommentsOption(isJsonImport) {
+            const includeCommentsCheckbox = document.getElementById('includeComments');
+            const commentsContainer = includeCommentsCheckbox ? includeCommentsCheckbox.closest('.compact-item') : null;
+
+            if (!includeCommentsCheckbox || !commentsContainer) {
+                return;
+            }
+
+            if (isJsonImport) {
+                // Disable and uncheck for JSON imports
+                includeCommentsCheckbox.checked = false;
+                includeCommentsCheckbox.disabled = true;
+                commentsContainer.style.opacity = '0.5';
+                commentsContainer.title = 'Comments are not available in JSON imports';
+            } else {
+                // Re-enable for API boards
+                includeCommentsCheckbox.disabled = false;
+                includeCommentsCheckbox.checked = true; // Default to checked
+                commentsContainer.style.opacity = '1';
+                commentsContainer.title = '';
+            }
         }
 
         async function generateDocumentation() {
@@ -912,7 +1145,16 @@ function generateInteractiveHTML() {
 
         function collectConfiguration() {
             const boardSelect = document.getElementById('boardSelect');
-            const selectedBoard = boardsData.find(b => b.id === boardSelect.value);
+            let selectedBoard;
+
+            if (boardSelect.value === 'imported' && importedBoardData) {
+                selectedBoard = {
+                    id: 'imported',
+                    name: importedBoardData.name
+                };
+            } else {
+                selectedBoard = boardsData.find(b => b.id === boardSelect.value);
+            }
 
             const selectedListElements = document.querySelectorAll('input[name="selectedList"]:checked');
             const selectedLists = Array.from(selectedListElements).map(el => ({
@@ -923,6 +1165,7 @@ function generateInteractiveHTML() {
             return {
                 boardId: selectedBoard.id,
                 boardName: selectedBoard.name,
+                isImported: boardSelect.value === 'imported',
                 selectedLists: selectedLists,
                 includeComments: document.getElementById('includeComments').checked,
                 excludeEmptyCards: document.getElementById('excludeEmptyCards').checked,
@@ -975,17 +1218,67 @@ function generateInteractiveHTML() {
 
         // Generate documentation using API call
         async function generateDocumentHTML(config) {
-            const response = await fetch('/api/generate', {
+            if (config.isImported && importedBoardData) {
+                // Handle imported JSON data directly
+                return await generateDocumentHTMLFromJSON(config);
+            } else {
+                // Use API for regular boards
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to generate documentation');
+                }
+
+                const result = await response.json();
+                return result.html;
+            }
+        }
+
+        async function generateDocumentHTMLFromJSON(config) {
+            // Send the imported data to the backend for processing
+            const selectedListIds = config.selectedLists.map(list => list.id);
+            const cardsData = [];
+
+            // Create a map of lists for quick lookup
+            const listsById = {};
+            importedBoardData.lists.forEach(list => {
+                listsById[list.id] = list;
+            });
+
+            // Process cards from the flat cards array, filtering by selected lists
+            (importedBoardData.cards || []).forEach(card => {
+                if (selectedListIds.includes(card.idList)) {
+                    const parentList = listsById[card.idList];
+                    cardsData.push({
+                        ...card,
+                        listId: card.idList,
+                        listName: parentList ? parentList.name : 'Unknown List'
+                    });
+                }
+            });
+
+            // Send the processed data to the backend for HTML generation
+            const response = await fetch('/api/generate-from-json', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(config)
+                body: JSON.stringify({
+                    cards: cardsData,
+                    config: config
+                })
             });
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.error || 'Failed to generate documentation');
+                throw new Error(error.error || 'Failed to generate documentation from JSON');
             }
 
             const result = await response.json();

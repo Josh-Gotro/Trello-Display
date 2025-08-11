@@ -26,6 +26,8 @@ const server = http.createServer(async (req, res) => {
   try {
     if (pathname === '/api/generate' && req.method === 'POST') {
       await handleGenerateRequest(req, res);
+    } else if (pathname === '/api/generate-from-json' && req.method === 'POST') {
+      await handleGenerateFromJSONRequest(req, res);
     } else if (pathname === '/api/boards' && req.method === 'GET') {
       await handleBoardsRequest(req, res);
     } else if (pathname === '/api/lists' && req.method === 'GET') {
@@ -129,6 +131,59 @@ async function handleGenerateRequest(req, res) {
         success: true,
         html: html,
         cardCount: cards.length
+      }));
+
+    } catch (error) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+  });
+}
+
+// Handle generate from JSON request
+async function handleGenerateFromJSONRequest(req, res) {
+  let body = '';
+  req.on('data', chunk => {
+    body += chunk.toString();
+  });
+
+  req.on('end', async () => {
+    try {
+      const { cards, config } = JSON.parse(body);
+
+      if (!cards || !Array.isArray(cards)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Cards data is required' }));
+        return;
+      }
+
+      // Ensure all required config properties exist with defaults
+      const normalizedConfig = {
+        ...config,
+        logo: config.logo || { enabled: false, position: 'header' },
+        coverLetter: config.coverLetter || { enabled: false, showOnSeparatePage: false },
+        showCardNumbers: config.showCardNumbers !== false, // default to true
+        separatePages: config.separatePages || false
+      };
+
+      // Process the cards data similar to the API flow
+      const processedCards = cards.map(card => ({
+        ...card,
+        // Ensure consistent structure
+        desc: card.desc || '',
+        labels: card.labels || [],
+        attachments: card.attachments || [],
+        comments: card.comments || []
+      }));
+
+      // Generate HTML using the same function as the API
+      const html = generateConfigurableHTML(processedCards, normalizedConfig);
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        html: html,
+        cardCount: processedCards.length
       }));
 
     } catch (error) {
