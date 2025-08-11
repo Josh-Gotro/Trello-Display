@@ -25,10 +25,15 @@ const CONFIG = {
 // Validate configuration
 function validateConfig() {
   if (!CONFIG.apiKey || !CONFIG.token) {
-    console.error('❌ Error: Missing Trello API credentials in environment variables');
-    console.error('Please ensure TRELLO_API_KEY and TRELLO_TOKEN are set in your .env file');
-    process.exit(1);
+    const error = new Error('Missing Trello API credentials in environment variables. Please ensure TRELLO_API_KEY and TRELLO_TOKEN are set in your .env file');
+    error.name = 'MissingCredentialsError';
+    throw error;
   }
+}
+
+// Check if credentials are available (without throwing)
+function hasCredentials() {
+  return !!(CONFIG.apiKey && CONFIG.token);
 }
 
 // Base function to make Trello API calls
@@ -164,6 +169,7 @@ module.exports = {
   CONFIG,
   listIds,
   validateConfig,
+  hasCredentials,
   makeRequest,
   fetchListCards,
   fetchBusinessRules,

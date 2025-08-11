@@ -196,6 +196,17 @@ async function handleGenerateFromJSONRequest(req, res) {
 // Handle boards request
 async function handleBoardsRequest(req, res) {
   try {
+    // Check if credentials are available
+    if (!trelloApi.hasCredentials()) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        boards: [],
+        message: 'No API credentials available. Please use JSON upload feature instead.'
+      }));
+      return;
+    }
+
     trelloApi.validateConfig();
     const boards = await trelloApi.fetchUserBoards();
 
@@ -214,6 +225,17 @@ async function handleListsRequest(req, res, query) {
     if (!boardId) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Board ID required' }));
+      return;
+    }
+
+    // Check if credentials are available
+    if (!trelloApi.hasCredentials()) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        lists: [],
+        message: 'No API credentials available. Please use JSON upload feature instead.'
+      }));
       return;
     }
 

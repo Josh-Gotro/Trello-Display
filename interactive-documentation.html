@@ -883,10 +883,24 @@
                 if (result.success) {
                     boardsData = result.boards;
 
-                    boardSelect.innerHTML = '<option value="">Choose a board...</option>' +
-                        boardsData.map(board =>
-                            `<option value="${board.id}" data-name="${board.name}">${board.name}</option>`
-                        ).join('');
+                    if (result.message) {
+                        // Show message when no API credentials are available
+                        boardSelect.innerHTML = '<option value="">No API boards available</option>';
+
+                        // Add a helpful message to the board selection area
+                        const boardSelectionDiv = document.querySelector('.board-selection-column:first-child');
+                        if (boardSelectionDiv) {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.style.cssText = 'color: #666; font-style: italic; margin-top: 0.5rem; font-size: 0.9rem;';
+                            messageDiv.textContent = result.message;
+                            boardSelectionDiv.appendChild(messageDiv);
+                        }
+                    } else {
+                        boardSelect.innerHTML = '<option value="">Choose a board...</option>' +
+                            boardsData.map(board =>
+                                `<option value="${board.id}" data-name="${board.name}">${board.name}</option>`
+                            ).join('');
+                    }
                 } else {
                     boardSelect.innerHTML = '<option value="">Error loading boards</option>';
                 }
@@ -915,52 +929,59 @@
                 const response = await fetch(`/api/lists?boardId=${boardId}`);
                 const result = await response.json();
 
-                if (result.success && result.lists.length > 0) {
-                    const selectAllHTML = `
-                        <div class="checkbox-item select-all-item">
-                            <input type="checkbox" id="selectAllLists">
-                            <label for="selectAllLists"><strong>Select All Lists</strong></label>
-                        </div>
-                    `;
+                if (result.success) {
+                    if (result.message) {
+                        // Show message when no API credentials are available
+                        listSelectionDiv.innerHTML = '<p style="color: #666; font-style: italic;">' + result.message + '</p>';
+                    } else if (result.lists && result.lists.length > 0) {
+                        const selectAllHTML = `
+                            <div class="checkbox-item select-all-item">
+                                <input type="checkbox" id="selectAllLists">
+                                <label for="selectAllLists"><strong>Select All Lists</strong></label>
+                            </div>
+                        `;
 
-                    const listsHTML = result.lists.map(list =>
-                        `<div class="checkbox-item">
-                            <input type="checkbox" id="list_${list.id}" name="selectedList" value="${list.id}" data-name="${list.name}">
-                            <label for="list_${list.id}">${list.name}</label>
-                        </div>`
-                    ).join('');
+                        const listsHTML = result.lists.map(list =>
+                            `<div class="checkbox-item">
+                                <input type="checkbox" id="list_${list.id}" name="selectedList" value="${list.id}" data-name="${list.name}">
+                                <label for="list_${list.id}">${list.name}</label>
+                            </div>`
+                        ).join('');
 
-                    listSelectionDiv.innerHTML = `
-                        <div class="checkbox-group">
-                            ${selectAllHTML}
-                            ${listsHTML}
-                        </div>
-                    `;
+                        listSelectionDiv.innerHTML = `
+                            <div class="checkbox-group">
+                                ${selectAllHTML}
+                                ${listsHTML}
+                            </div>
+                        `;
 
-                    // Add Select All functionality
-                    const selectAllCheckbox = document.getElementById('selectAllLists');
-                    const listCheckboxes = document.querySelectorAll('input[name="selectedList"]');
+                        // Add Select All functionality
+                        const selectAllCheckbox = document.getElementById('selectAllLists');
+                        const listCheckboxes = document.querySelectorAll('input[name="selectedList"]');
 
-                    selectAllCheckbox.addEventListener('change', function() {
-                        listCheckboxes.forEach(checkbox => {
-                            checkbox.checked = this.checked;
-                        });
-                        updateGenerateButton();
-                    });
-
-                    // Update Select All when individual checkboxes change
-                    listCheckboxes.forEach(checkbox => {
-                        checkbox.addEventListener('change', function() {
-                            const allChecked = Array.from(listCheckboxes).every(cb => cb.checked);
-                            const anyChecked = Array.from(listCheckboxes).some(cb => cb.checked);
-
-                            selectAllCheckbox.checked = allChecked;
-                            selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+                        selectAllCheckbox.addEventListener('change', function() {
+                            listCheckboxes.forEach(checkbox => {
+                                checkbox.checked = this.checked;
+                            });
                             updateGenerateButton();
                         });
-                    });
+
+                        // Update Select All when individual checkboxes change
+                        listCheckboxes.forEach(checkbox => {
+                            checkbox.addEventListener('change', function() {
+                                const allChecked = Array.from(listCheckboxes).every(cb => cb.checked);
+                                const anyChecked = Array.from(listCheckboxes).some(cb => cb.checked);
+
+                                selectAllCheckbox.checked = allChecked;
+                                selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+                                updateGenerateButton();
+                            });
+                        });
+                    } else {
+                        listSelectionDiv.innerHTML = '<p style="color: #e53e3e;">No lists found in this board</p>';
+                    }
                 } else {
-                    listSelectionDiv.innerHTML = '<p style="color: #e53e3e;">No lists found in this board</p>';
+                    listSelectionDiv.innerHTML = '<p style="color: #e53e3e;">Error loading lists</p>';
                 }
             } catch (error) {
                 console.error('Error loading lists:', error);
@@ -1039,8 +1060,10 @@
 
             const boardSelected = boardSelect.value;
             const listsSelected = document.querySelectorAll('input[name="selectedList"]:checked').length > 0;
+            const hasImportedData = importedBoardData !== null;
 
-            generateBtn.disabled = !(boardSelected && listsSelected);
+            // Enable button if either API board is selected with lists, or JSON data is imported with lists
+            generateBtn.disabled = !((boardSelected && listsSelected) || (hasImportedData && listsSelected));
         }
 
         function updateCommentsOption(isJsonImport) {
