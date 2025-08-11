@@ -96,7 +96,7 @@ async function runInteractiveGenerator() {
     }
 
     console.log('\n Available lists:');
-    displayList(lists, list => `${list.name} (${list.cards?.length || 0} cards)`);
+    displayList(lists, list => list.name);
 
     let selectedListIndices;
     while (true) {
@@ -139,7 +139,13 @@ async function runInteractiveGenerator() {
       oneCardPerPrintPage: false,
       title,
       subtitle,
-      outputFileName
+      outputFileName,
+      logo: {
+        enabled: true,
+        url: 'public/assets/wostmann_logo.jpg',
+        width: 200,
+        position: 'cover'
+      }
     });
 
     // Validate configuration

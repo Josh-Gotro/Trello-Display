@@ -136,6 +136,27 @@ function generateLogoHTML(config) {
   `;
 }
 
+// Generate cover page HTML
+function generateCoverPageHTML(config, timestamp) {
+  if (!config.logo.enabled || config.logo.position !== 'cover') return '';
+
+  return `
+    <div class="cover-page">
+      <div class="cover-content">
+        <div class="cover-logo">
+          <img src="${config.logo.url}" alt="Logo" style="max-width: 300px; height: auto;">
+        </div>
+        <h1 class="cover-title">${config.title}</h1>
+        ${config.subtitle ? `<h2 class="cover-subtitle">${config.subtitle}</h2>` : ''}
+        <div class="cover-meta">
+          <p class="cover-board">Board: ${config.boardName}</p>
+          <p class="cover-date">Generated: ${timestamp}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 // Check if a card has meaningful content
 function hasContent(card) {
   // Check if description exists and has meaningful text (after removing whitespace/newlines)
@@ -355,6 +376,61 @@ function generateConfigurableHTML(cards, config) {
             color: #666;
         }
 
+        /* Cover page styles */
+        .cover-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, rgb(51,141,37) 0%, rgb(147,147,145) 100%);
+            color: white;
+            page-break-after: always;
+        }
+
+        .cover-content {
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        .cover-logo {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .cover-logo img {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .cover-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .cover-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .cover-meta {
+            margin-top: 3rem;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        .cover-meta p {
+            margin: 0.5rem 0;
+        }
+
         /* Print-specific styles */
         @media print {
             body {
@@ -385,6 +461,24 @@ function generateConfigurableHTML(cards, config) {
 
             .search-section {
                 display: none;
+            }
+
+            .cover-page {
+                background: white !important;
+                color: black !important;
+                page-break-after: always;
+            }
+
+            .cover-logo img {
+                box-shadow: none !important;
+            }
+
+            .cover-title, .cover-subtitle {
+                color: black !important;
+            }
+
+            .cover-meta {
+                color: black !important;
             }
 
             .document-section {
@@ -822,6 +916,9 @@ function generateConfigurableHTML(cards, config) {
     </style>
 </head>
 <body>
+    ${generateCoverPageHTML(config, timestamp)}
+    
+    ${config.logo.position !== 'cover' ? `
     <div class="header">
         <div class="container">
             ${config.logo.position === 'header' ? generateLogoHTML(config) : ''}
@@ -833,10 +930,10 @@ function generateConfigurableHTML(cards, config) {
             </div>
         </div>
     </div>
+    ` : ''}
 
     <div class="container">
         ${config.coverLetter.enabled && config.coverLetter.showOnSeparatePage ? generateCoverLetterHTML(config) : ''}
-
 
         <div id="documentContainer" class="hierarchical-document">${sectionsHTML}</div>
 
