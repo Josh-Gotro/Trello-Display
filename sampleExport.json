@@ -1,0 +1,148 @@
+{
+  "id": "5f4ebccafcbb2137daf50129",
+  "name": "Cosmere Interventions",
+  "desc": "An unofficial tracking board for various Cosmere events, maintained by a certain worldhopper.",
+  "closed": false,
+  "url": "https://trello.com/b/worldhopper/cosmere-interventions",
+  "prefs": {
+    "permissionLevel": "private",
+    "voting": "disabled",
+    "comments": "members"
+  },
+  "dateLastActivity": "2025-08-11T12:45:10.500Z",
+  "lists": [
+    {
+      "id": "list_ros_todo",
+      "name": "Roshar - Urgent",
+      "closed": false,
+      "idBoard": "5f4ebccafcbb2137daf50129",
+      "pos": 1
+    },
+    {
+      "id": "list_scad_wip",
+      "name": "Scadrial - In Progress",
+      "closed": false,
+      "idBoard": "5f4ebccafcbb2137daf50129",
+      "pos": 2
+    },
+    {
+      "id": "list_nalthis_done",
+      "name": "Nalthis - Completed",
+      "closed": false,
+      "idBoard": "5f4ebccafcbb2137daf50129",
+      "pos": 3
+    }
+  ],
+  "cards": [
+    {
+      "id": "card_unite_odium",
+      "name": "Help Dalinar Unite the Three Realms",
+      "desc": "Provide subtle guidance to Dalinar during the battle of Thaylen Field to ensure Odium is contained.",
+      "idList": "list_ros_todo",
+      "idBoard": "5f4ebccafcbb2137daf50129",
+      "closed": false,
+      "pos": 16384,
+      "dateLastActivity": "2025-08-11T12:40:00.000Z",
+      "idLabels": ["label_roshar_main"],
+      "idMembers": ["member_hoid"],
+      "attachments": []
+    },
+    {
+      "id": "card_inves_survive",
+      "name": "Investigate the Cognitive Shadow of Kelsier",
+      "desc": "Check on Kelsier's progress on Scadrial, ensuring he doesn't disrupt the overall plan. Potential partnership opportunity?",
+      "idList": "list_scad_wip",
+      "idBoard": "5f4ebccafcbb2137daf50129",
+      "closed": false,
+      "pos": 32768,
+      "dateLastActivity": "2025-08-10T15:10:39.000Z",
+      "idLabels": ["label_scadrial_main"],
+      "idMembers": ["member_hoid"],
+      "attachments": []
+    },
+    {
+      "id": "card_night_teach",
+      "name": "Teach Nightblood about Honor",
+      "desc": "Nightblood's concept of 'evil' is far too simplistic. Provide some philosophical context during the confrontation with the Five Scholars.",
+      "idList": "list_nalthis_done",
+      "idBoard": "5f4ebccafcbb2137daf50129",
+      "closed": false,
+      "pos": 16384,
+      "dateLastActivity": "2025-08-09T09:00:00.000Z",
+      "idLabels": ["label_nalthis_main"],
+      "idMembers": [],
+      "attachments": []
+    },
+    {
+      "id": "card_find_kaladin",
+      "name": "Recruit Kaladin as a new agent",
+      "desc": "The radiants are back, and their power is needed in the cosmere. Find a way to get one to the other worlds.",
+      "idList": "list_ros_todo",
+      "idBoard": "5f4ebccafcbb2137daf50129",
+      "closed": false,
+      "pos": 32768,
+      "dateLastActivity": "2025-08-11T12:45:00.000Z",
+      "idLabels": ["label_roshar_main"],
+      "idMembers": ["member_hoid"],
+      "attachments": [
+        {
+          "id": "attachment_roshar_map",
+          "name": "roshar_map.png",
+          "url": "https://trello.com/c/card_find_kaladin/attachments/..."
+        }
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": "label_roshar_main",
+      "name": "Roshar",
+      "color": "sky",
+      "idBoard": "5f4ebccafcbb2137daf50129"
+    },
+    {
+      "id": "label_scadrial_main",
+      "name": "Scadrial",
+      "color": "yellow",
+      "idBoard": "5f4ebccafcbb2137daf50129"
+    },
+    {
+      "id": "label_nalthis_main",
+      "name": "Nalthis",
+      "color": "purple",
+      "idBoard": "5f4ebccafcbb2137daf50129"
+    }
+  ],
+  "members": [
+    {
+      "id": "member_hoid",
+      "fullName": "Hoid",
+      "username": "worlds_finest_worldhopper",
+      "initials": "H"
+    },
+    {
+      "id": "member_sazed",
+      "fullName": "Sazed",
+      "username": "Harmony",
+      "initials": "S"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action_hoid_comment",
+      "type": "commentCard",
+      "date": "2025-08-11T12:42:00.000Z",
+      "data": {
+        "text": "Starting to look into Kelsier's activities. Seems he's quite the handful, even in death. I'll need some extra help for this one.",
+        "card": {
+          "id": "card_inves_survive",
+          "name": "Investigate the Cognitive Shadow of Kelsier"
+        }
+      },
+      "memberCreator": {
+        "id": "member_hoid",
+        "fullName": "Hoid"
+      }
+    }
+  ]
+}

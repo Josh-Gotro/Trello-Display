@@ -1,6 +1,16 @@
-# Trello Display - Professional Documentation Generator
+# Trello Display
 
-This tool connects to your Trello account and allows you to select specific lists/columns from your Trello boards to display all cards in a printable format. Perfect for creating focused documentation, status reports, and printable board views.
+This tool creates professional documentation from your Trello cards. Choose your preferred interface and data source:
+
+**Interface Options:**
+- **Web Interface**: Interactive browser-based experience
+- **Command Line**: Terminal-based for automation and scripting
+
+**Data Sources:**
+- **Trello API**: Direct connection to your Trello account
+- **JSON Import**: Upload exported board files (no API credentials needed)
+
+Select specific lists/columns from your boards to generate printable documentation. Perfect for creating focused documentation, status reports, and printable board views.
 
 ## ⚡ Quick Start (3 Steps)
 
@@ -11,11 +21,12 @@ cd Trello-Display
 npm install
 ```
 
-### 2. Get Trello API Credentials
+### 2. Get Trello API Credentials (Optional)
+**Option A: Use API (Recommended)**
 1. Visit https://trello.com/power-ups/admin/ and log in to your Trello account
 2. Find and click on the **CTRL_ALT_DELEGATION** app
 3. Click **API Key** on the left sidebar to get your **API Key**
-4. Click the **Generate Token** link on the right next to the API key to get your **Token**
+4. Click the **Token** link on the right next to the API key to get your **Token**
 5. Copy `.env.example` to `.env` and add your credentials:
    ```bash
    cp .env.example .env
@@ -25,6 +36,11 @@ npm install
    TRELLO_API_KEY=your_api_key_here
    TRELLO_TOKEN=your_token_here
    ```
+
+**Option B: Use JSON Import (No API credentials needed)**
+- Export your Trello board as JSON from Trello's export feature
+- See `sampleExport.json` in the root directory for the expected format
+- No API setup required!
 
 ### 3. Run the Application
 ```bash
@@ -36,21 +52,45 @@ Open http://localhost:3001 in your browser and start creating documentation!
 
 ## 🎯 How to Use
 
-1. **Select Board**: Choose from all your accessible Trello boards
+### Using the Web Interface
+
+1. **Select Data Source**:
+   - **API Boards**: Choose from all your accessible Trello boards (requires API credentials)
+   - **JSON Import**: Upload a Trello board export file (no API credentials needed)
 2. **Pick Lists**: Select which specific lists/columns to include in your documentation
 3. **Configure Options**: Set title, subtitle, and display preferences
 4. **Generate**: Click "Generate Documentation" to display all cards from selected lists
 5. **Print or Share**: Print directly from browser or save as HTML for easy sharing
+
+### JSON Import Feature
+
+**No API credentials required!** You can import Trello board data using JSON export files:
+
+1. **Export from Trello**:
+   - Go to your Trello board
+   - Click "Show Menu" → "More" → "Settings"
+   - Click "Export JSON" to download your board data
+
+2. **Import in the Tool**:
+   - In the web interface, use the "📁 Import JSON File" section
+   - Click "Choose JSON File" and select your exported file
+   - The tool will automatically load the board and lists
+   - Select the lists you want to include in your documentation
+
+3. **Example Format**:
+   - See `sampleExport.json` in the root directory for the expected JSON structure
+   - The file should contain `name`, `lists`, and `cards` arrays
 
 ## 🚀 Features
 
 ### Web Interface
 - **🌐 Web Interface** - No command line needed, everything in your browser
 - **📋 Multi-Board Support** - Access all your Trello boards instantly
+- **🔄 Flexible Data Sources** - Switch between API boards and JSON imports seamlessly
 - **🎨 Professional Output** - Clean, formatted documentation ready for sharing
 - **🔍 Live Search** - Find content instantly in generated docs
 - **🖨️ Print Ready** - Optimized layouts for professional printing
-- **💬 Comments Included** - Full comment threads with timestamps
+- **💬 Comments Included** - Full comment threads with timestamps (API only)
 - **🏷️ Label Support** - Color-coded Trello labels preserved
 - **📝 Markdown Support** - Headers, bold text, code blocks, and more
 
@@ -65,7 +105,7 @@ Open http://localhost:3001 in your browser and start creating documentation!
 ## 📋 Requirements
 
 - **Node.js** (version 20 or higher) - [Download here](https://nodejs.org/)
-- **Trello Account** - Free account works fine
+- **Trello Account** - Free account works fine (or JSON export file)
 - **Modern Browser** - Chrome, Firefox, Safari, or Edge
 
 ## 🔧 Available Commands
@@ -83,7 +123,13 @@ Open http://localhost:3001 in your browser and start creating documentation!
 ### "Error loading boards"
 - **Check your `.env` file** - Make sure your API key and token are correct
 - **Verify Trello permissions** - The token needs read access to your boards
+- **Try JSON import instead** - Use the "📁 Import JSON File" feature (no API credentials needed)
 - **Try the CLI version** - Run `npm run cli` to test your API credentials
+
+### "Invalid Trello board JSON format"
+- **Use Trello's export feature** - Go to your board → Show Menu → More → Settings → Export JSON
+- **Check the format** - See `sampleExport.json` in the root directory for the expected structure
+- **Ensure it's a board export** - The JSON should contain `name`, `lists`, and `cards` arrays
 
 ### "Port already in use" / Can't connect
 - **Default port is 3001** - Try http://localhost:3001 (not 3000)
@@ -116,6 +162,9 @@ Your generated documentation includes:
 - **🖨️ Print ready** - Professional layouts for PDF/printing
 
 ## 🛠️ For Developers
+
+- **Sample Data** - See `sampleExport.json` for JSON import format example
+
 
 ### Development Commands
 ```bash
